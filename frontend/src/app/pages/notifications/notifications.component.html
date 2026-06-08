@@ -1,0 +1,62 @@
+<div class="max-w-3xl mx-auto p-8 space-y-6">
+  <div class="flex justify-between items-end">
+    <div>
+      <h2 class="text-3xl font-manrope font-semibold text-on-surface">Notificaciones</h2>
+      <p class="text-on-surface-variant mt-1">Mantente al día con la actividad de tu cuenta y los casos.</p>
+    </div>
+    <div class="flex gap-2">
+      <button (click)="markAll()" class="text-sm text-primary font-medium hover:underline">Marcar todas</button>
+      <button (click)="clearAll()" class="text-sm text-error font-medium hover:underline">Limpiar</button>
+    </div>
+  </div>
+
+  <div class="flex gap-2">
+    <button (click)="setFilter('all')"
+            class="px-4 py-1.5 rounded-full text-sm font-medium transition-colors"
+            [class.bg-primary]="filter === 'all'" [class.text-on-primary]="filter === 'all'"
+            [class.bg-surface-container-high]="filter !== 'all'" [class.text-on-surface-variant]="filter !== 'all'">
+      Todas
+    </button>
+    <button (click)="setFilter('unread')"
+            class="px-4 py-1.5 rounded-full text-sm font-medium transition-colors"
+            [class.bg-primary]="filter === 'unread'" [class.text-on-primary]="filter === 'unread'"
+            [class.bg-surface-container-high]="filter !== 'unread'" [class.text-on-surface-variant]="filter !== 'unread'">
+      No leídas
+    </button>
+  </div>
+
+  <div class="space-y-3" *ngIf="!loading">
+    <div *ngIf="notifications.length === 0" class="bg-surface-container-lowest border border-outline-variant rounded-xl p-12 text-center text-on-surface-variant">
+      <span class="material-symbols-outlined text-5xl mb-2">notifications_off</span>
+      <p>No tienes notificaciones {{ filter === 'unread' ? 'sin leer' : '' }}.</p>
+    </div>
+
+    <div *ngFor="let n of notifications"
+         (click)="open(n)"
+         class="bg-surface-container-lowest border rounded-xl p-4 flex gap-4 cursor-pointer hover:active-nav-shadow transition-all"
+         [class.border-outline-variant]="n.read"
+         [class.border-primary]="!n.read">
+      <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+           [ngClass]="{
+             'bg-primary/10 text-primary': n.type === 'INFO' || n.type === 'ACCOUNT',
+             'bg-secondary-container text-on-secondary-container': n.type === 'SUCCESS' || n.type === 'RESET_APPROVED' || n.type === 'CASE_COMPLETED',
+             'bg-error-container text-on-error-container': n.type === 'WARNING' || n.type === 'ERROR' || n.type === 'RESET_REQUEST'
+           }">
+        <span class="material-symbols-outlined">{{ icon(n.type) }}</span>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2">
+          <p class="font-medium text-on-surface">{{ n.title }}</p>
+          <span *ngIf="!n.read" class="w-2 h-2 rounded-full bg-primary"></span>
+        </div>
+        <p class="text-sm text-on-surface-variant">{{ n.message }}</p>
+        <p class="text-xs text-on-surface-variant mt-1">{{ n.timeAgo }}</p>
+      </div>
+      <button (click)="remove(n, $event)" class="text-on-surface-variant hover:text-error">
+        <span class="material-symbols-outlined">delete</span>
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="p-12 text-center text-on-surface-variant">Cargando notificaciones...</div>
+</div>

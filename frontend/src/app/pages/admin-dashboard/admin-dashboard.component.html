@@ -1,0 +1,126 @@
+<div class="max-w-[1280px] mx-auto p-8 space-y-6" *ngIf="!loading && stats">
+  <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+    <div>
+      <h2 class="text-3xl font-manrope font-semibold neon-heading neon-blue">Panel de Administración</h2>
+      <p class="text-on-surface-variant mt-1">Visión general del rendimiento académico de la plataforma.</p>
+    </div>
+    <div class="flex gap-2">
+      <a routerLink="/manage-cases"
+         class="neon-btn bg-primary text-on-primary px-5 py-2.5 rounded-lg flex items-center gap-2 text-sm font-medium hover:bg-primary-container transition-all">
+        <span class="material-symbols-outlined text-xl">add_circle</span>
+        Crear Caso
+      </a>
+      <a routerLink="/users"
+         class="border border-outline-variant px-5 py-2.5 rounded-lg flex items-center gap-2 text-sm font-medium hover:bg-surface-container-high transition-all">
+        <span class="material-symbols-outlined text-xl">group_add</span>
+        Usuarios
+      </a>
+    </div>
+  </div>
+
+  <!-- KPI grid -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="neon-card-cyan glass-hover rounded-xl p-5">
+      <div class="flex items-center justify-between mb-2">
+        <p class="text-xs uppercase text-on-surface-variant">Estudiantes</p>
+        <span class="material-symbols-outlined neon-icon-cyan">group</span>
+      </div>
+      <p class="text-3xl font-manrope neon-stat-cyan">{{ stats.totalStudents }}</p>
+      <p class="text-xs text-on-surface-variant mt-1">{{ stats.enabledStudents }} estudiantes habilitados</p>
+    </div>
+    <div class="neon-card-blue glass-hover rounded-xl p-5">
+      <div class="flex items-center justify-between mb-2">
+        <p class="text-xs uppercase text-on-surface-variant">Intentos totales</p>
+        <span class="material-symbols-outlined neon-icon-blue">history</span>
+      </div>
+      <p class="text-3xl font-manrope neon-stat-blue">{{ stats.totalAttempts }}</p>
+      <p class="text-xs text-on-surface-variant mt-1">{{ stats.inProgressAttempts }} en curso</p>
+    </div>
+    <div class="neon-card-cyan glass-hover rounded-xl p-5">
+      <div class="flex items-center justify-between mb-2">
+        <p class="text-xs uppercase text-on-surface-variant">Tasa aprobación</p>
+        <span class="material-symbols-outlined neon-icon-cyan">trending_up</span>
+      </div>
+      <p class="text-3xl font-manrope neon-stat-cyan">{{ stats.approvalRate }}%</p>
+      <p class="text-xs text-on-surface-variant mt-1">{{ stats.passedAttempts }} aprobados</p>
+    </div>
+    <div class="neon-card-coral glass-hover rounded-xl p-5">
+      <div class="flex items-center justify-between mb-2">
+        <p class="text-xs uppercase text-on-surface-variant">Pendientes</p>
+        <span class="material-symbols-outlined neon-icon-coral">restart_alt</span>
+      </div>
+      <p class="text-3xl font-manrope neon-stat-coral">{{ stats.pendingResetRequests }}</p>
+      <a routerLink="/reset-requests" class="text-xs neon-cyan hover:underline mt-1 inline-block">Ver solicitudes</a>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Competency averages -->
+    <div class="neon-panel glass-hover rounded-xl p-6 space-y-5">
+      <h3 class="font-manrope font-semibold text-lg neon-blue">Promedios por competencia</h3>
+      <div>
+        <div class="flex justify-between text-sm mb-1"><span>Clínico</span><span class="font-bold neon-cyan">{{ stats.avgClinical }}%</span></div>
+        <div class="h-2 neon-progress rounded-full overflow-hidden">
+          <div class="h-full neon-progress-fill-cyan rounded-full" [style.width.%]="stats.avgClinical"></div>
+        </div>
+      </div>
+      <div>
+        <div class="flex justify-between text-sm mb-1"><span>Ético</span><span class="font-bold neon-blue">{{ stats.avgEthical }}%</span></div>
+        <div class="h-2 neon-progress rounded-full overflow-hidden">
+          <div class="h-full neon-progress-fill-blue rounded-full" [style.width.%]="stats.avgEthical"></div>
+        </div>
+      </div>
+      <div>
+        <div class="flex justify-between text-sm mb-1"><span>Normativo</span><span class="font-bold neon-coral">{{ stats.avgNormative }}%</span></div>
+        <div class="h-2 neon-progress rounded-full overflow-hidden">
+          <div class="h-full neon-progress-fill-coral rounded-full" [style.width.%]="stats.avgNormative"></div>
+        </div>
+      </div>
+      <div class="pt-4 border-t border-outline-variant grid grid-cols-2 gap-3 text-center">
+        <div>
+          <p class="text-2xl font-manrope neon-stat-cyan">{{ stats.casesCreated }}</p>
+          <p class="text-xs text-on-surface-variant">Casos creados</p>
+        </div>
+        <div>
+          <p class="text-2xl font-manrope neon-stat-coral">{{ stats.blockedStudents }}</p>
+          <p class="text-xs text-on-surface-variant">Bloqueados</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leaderboard -->
+    <div class="lg:col-span-2 neon-panel glass-hover rounded-xl p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-manrope font-semibold text-lg neon-gold">Ranking de estudiantes</h3>
+        <span class="material-symbols-outlined neon-icon-cyan">leaderboard</span>
+      </div>
+      <div class="space-y-2">
+        <div *ngFor="let entry of stats.leaderboard; let i = index"
+             class="flex items-center gap-4 p-3 rounded-lg glass-hover-row transition-colors">
+          <span class="material-symbols-outlined"
+                [class.neon-rank-gold]="i === 0"
+                [class.neon-rank-silver]="i === 1"
+                [class.neon-rank-bronze]="i === 2">
+            {{ i < 3 ? 'workspace_premium' : 'tag' }}
+          </span>
+          <span class="font-bold text-on-surface-variant w-5">{{ i + 1 }}</span>
+          <app-user-avatar [avatarUrl]="entry.avatarUrl" [fullName]="entry.fullName"
+                           imgClass="w-9 h-9 rounded-full object-cover border border-outline-variant" />
+          <div class="flex-1 min-w-0">
+            <a [routerLink]="['/users', entry.userId]" class="text-sm font-medium neon-cyan hover:underline">{{ entry.fullName }}</a>
+            <p class="text-xs text-on-surface-variant">{{ entry.passed }}/{{ entry.attempts }} aprobados</p>
+          </div>
+          <div class="text-right">
+            <p class="text-sm font-bold neon-cyan">{{ entry.bestScore }}%</p>
+            <p class="text-xs text-on-surface-variant">prom. {{ entry.averageScore }}%</p>
+          </div>
+        </div>
+        <div *ngIf="stats.leaderboard.length === 0" class="py-8 text-center text-on-surface-variant text-sm">
+          Aún no hay datos de ranking.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="loading" class="p-12 text-center text-on-surface-variant">Cargando panel...</div>

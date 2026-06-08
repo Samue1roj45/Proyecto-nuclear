@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Reportes de Estudiantes - Misión Psicosocial</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;family=Manrope:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed": "#151d1e",
+                    "inverse-on-surface": "#eff1f2",
+                    "on-tertiary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "surface-tint": "#086878",
+                    "on-primary": "#ffffff",
+                    "on-secondary-container": "#046f7d",
+                    "primary": "#006474",
+                    "surface-container-low": "#f2f4f5",
+                    "on-primary-fixed-variant": "#004e5b",
+                    "outline": "#6f797c",
+                    "surface-container-high": "#e6e8e9",
+                    "outline-variant": "#bec8cb",
+                    "secondary": "#006876",
+                    "on-secondary-fixed-variant": "#004e59",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary-fixed": "#001f26",
+                    "surface-dim": "#d8dadb",
+                    "tertiary-fixed": "#dbe4e5",
+                    "inverse-primary": "#87d2e4",
+                    "on-primary-container": "#f3fcff",
+                    "on-error-container": "#93000a",
+                    "secondary-container": "#9eefff",
+                    "inverse-surface": "#2e3132",
+                    "surface-container": "#eceeef",
+                    "on-secondary-fixed": "#001f24",
+                    "primary-fixed-dim": "#87d2e4",
+                    "on-surface": "#191c1d",
+                    "tertiary-container": "#6c7576",
+                    "surface": "#f8fafb",
+                    "surface-variant": "#e1e3e4",
+                    "surface-bright": "#f8fafb",
+                    "error": "#ba1a1a",
+                    "error-container": "#ffdad6",
+                    "secondary-fixed": "#9eefff",
+                    "tertiary": "#545c5e",
+                    "on-tertiary-container": "#f3fcfd",
+                    "primary-fixed": "#a9edff",
+                    "secondary-fixed-dim": "#82d3e2",
+                    "primary-container": "#2d7d8e",
+                    "on-background": "#191c1d",
+                    "on-secondary": "#ffffff",
+                    "surface-container-highest": "#e1e3e4",
+                    "tertiary-fixed-dim": "#bfc8c9",
+                    "background": "#f8fafb",
+                    "on-surface-variant": "#3f484b",
+                    "on-tertiary-fixed-variant": "#404849"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-sm": "12px",
+                    "stack-md": "24px",
+                    "stack-lg": "40px",
+                    "gutter": "20px",
+                    "base": "8px",
+                    "container-margin": "24px"
+            },
+            "fontFamily": {
+                    "label-md": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "headline-lg": ["Manrope"],
+                    "headline-md": ["Manrope"],
+                    "body-lg": ["Inter"],
+                    "headline-lg-mobile": ["Manrope"],
+                    "display-lg": ["Manrope"],
+                    "body-md": ["Inter"]
+            },
+            "fontSize": {
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        body { background-color: #f8fafb; color: #191c1d; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            border: 1px solid #e2e8f0;
+        }
+        .progress-ring { transition: stroke-dashoffset 0.35s; transform: rotate(-90deg); transform-origin: 50% 50%; }
+    </style>
+</head>
+<body class="font-body-md text-body-md overflow-x-hidden">
+<!-- SideNavBar (Mandatory Shell) -->
+<aside class="fixed left-0 top-0 h-full z-40 border-r border-outline-variant bg-surface-container-low dark:bg-inverse-surface w-64 flex flex-col">
+<div class="p-6 flex flex-col gap-1">
+<h1 class="text-headline-md font-headline-md font-bold text-primary dark:text-primary-fixed">Misión Psicosocial</h1>
+<p class="text-label-md font-label-md text-on-surface-variant">Simulador Académico</p>
+</div>
+<nav class="flex-1 mt-4 space-y-1">
+<a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-3 mx-2 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-3 mx-2 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-label-md text-label-md">Users</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-3 mx-2 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="psychology">psychology</span>
+<span class="font-label-md text-label-md">Cases</span>
+</a>
+<a class="flex items-center gap-3 bg-secondary-container text-on-secondary-container rounded-lg px-4 py-3 mx-2 scale-[0.98] transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="assessment">assessment</span>
+<span class="font-label-md text-label-md">Reports</span>
+</a>
+</nav>
+<div class="mt-auto border-t border-outline-variant p-4 space-y-1">
+<a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-2 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-2 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-label-md text-label-md">Help</span>
+</a>
+</div>
+</aside>
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 left-64 z-30 flex justify-between items-center px-6 h-16 bg-surface dark:bg-on-tertiary-fixed border-b border-outline-variant">
+<div class="flex items-center gap-4">
+<div class="bg-surface-container-highest px-3 py-1.5 rounded-full flex items-center gap-2 border border-outline-variant">
+<span class="material-symbols-outlined text-primary" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-label-md w-48" placeholder="Buscar reportes..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<div class="h-8 w-[1px] bg-outline-variant"></div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="text-label-md font-bold text-on-surface">Profesor Admin</p>
+<p class="text-label-sm text-on-surface-variant">admin@simulador.com</p>
+</div>
+<img alt="User Profile" class="w-10 h-10 rounded-full border border-outline-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZ1WVUAhNI02dhm4U1CktZ14hIefB1bysWg2YuKLasOcAW7B-nQwoMX6w7v8GYiHsvvSLdMYfuo-_3_uijEhGweIh6lUW9_NiaNza8SeoRA6qyhjV7CFe_zK1fO02dqEc0NveLi9XZtGQIGFzbQm1bbLEmKWLxDFDgv1yBmsXMGm6PziM-YLrmBiSWGy2_fRqv-W53XmQWOMry9oXWb6SnNA36aRhcQKDVjF-t5SjPHt_aPISvm3M7W-ZgGyw0R52LnCiPqeUftKI"/>
+</div>
+<button class="ml-4 text-primary font-bold text-label-md hover:underline">
+                Cerrar sesión
+            </button>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="ml-64 pt-16 min-h-screen bg-surface">
+<div class="max-w-[1280px] mx-auto p-gutter space-y-stack-lg">
+<!-- Page Header -->
+<div class="flex justify-between items-end">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Reportes de Estudiantes</h2>
+<p class="text-on-surface-variant mt-2 font-body-md">Gestión, seguimiento y análisis de los intentos académicos de los estudiantes.</p>
+</div>
+<div class="flex gap-2">
+<button class="bg-primary text-on-primary px-6 py-2.5 rounded-lg flex items-center gap-2 font-label-md hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-[20px]" data-icon="download">download</span>
+                        Exportar Todo
+                    </button>
+</div>
+</div>
+<!-- Bento Layout Content -->
+<div class="grid grid-cols-12 gap-gutter">
+<!-- Main Table Section -->
+<div class="col-span-12 lg:col-span-8 space-y-gutter">
+<div class="glass-card rounded-xl p-6 shadow-sm overflow-hidden">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-md text-headline-md text-on-surface">Intentos Recientes</h3>
+<span class="text-label-sm px-3 py-1 bg-surface-container-high rounded-full text-on-surface-variant">Mostrando 10 de 124</span>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="border-b border-outline-variant text-label-sm uppercase tracking-wider text-on-surface-variant">
+<th class="pb-4 px-2">Estudiante</th>
+<th class="pb-4 px-2">Caso</th>
+<th class="pb-4 px-2 text-center">Intento</th>
+<th class="pb-4 px-2">Fecha</th>
+<th class="pb-4 px-2">Puntaje</th>
+<th class="pb-4 px-2 text-center">Estado</th>
+<th class="pb-4 px-2 text-right">Acción</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<tr class="group hover:bg-surface-container-low transition-colors">
+<td class="py-4 px-2">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold text-label-sm">EP</div>
+<span class="text-label-md font-bold">Estudiante Prueba</span>
+</div>
+</td>
+<td class="py-4 px-2">
+<span class="text-label-md truncate block max-w-[150px]">Violencia Familiar...</span>
+</td>
+<td class="py-4 px-2 text-center text-on-surface-variant">1</td>
+<td class="py-4 px-2 text-label-sm text-on-surface-variant">27/05/2026, 5:59 p.m.</td>
+<td class="py-4 px-2">
+<span class="text-label-md font-bold text-error">16.67%</span>
+</td>
+<td class="py-4 px-2 text-center">
+<span class="inline-flex items-center rounded-full bg-error-container px-2.5 py-0.5 text-label-sm font-semibold text-on-error-container">FAILED</span>
+</td>
+<td class="py-4 px-2 text-right">
+<button class="bg-surface-container-highest text-on-surface-variant px-4 py-1.5 rounded-lg text-label-sm hover:bg-primary hover:text-white transition-all">Detalle</button>
+</td>
+</tr>
+<tr class="group hover:bg-surface-container-low transition-colors bg-surface-container-lowest">
+<td class="py-4 px-2">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold text-label-sm">EP</div>
+<span class="text-label-md font-bold">Estudiante Prueba</span>
+</div>
+</td>
+<td class="py-4 px-2">
+<span class="text-label-md truncate block max-w-[150px]">Violencia Familiar...</span>
+</td>
+<td class="py-4 px-2 text-center text-on-surface-variant">2</td>
+<td class="py-4 px-2 text-label-sm text-on-surface-variant">27/05/2026, 8:20 p.m.</td>
+<td class="py-4 px-2">
+<span class="text-label-md font-bold text-error">50%</span>
+</td>
+<td class="py-4 px-2 text-center">
+<span class="inline-flex items-center rounded-full bg-error-container px-2.5 py-0.5 text-label-sm font-semibold text-on-error-container">FAILED</span>
+</td>
+<td class="py-4 px-2 text-right">
+<button class="bg-primary text-white px-4 py-1.5 rounded-lg text-label-sm shadow-sm">Detalle</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Selected Detail Section -->
+<div class="glass-card rounded-xl p-8 border-primary/20 shadow-md">
+<div class="flex items-start justify-between mb-8">
+<div>
+<h3 class="font-headline-md text-headline-md text-primary">Detalle del Intento</h3>
+<p class="text-label-md font-bold text-on-surface-variant mt-1">Estudiante Prueba - Caso 1: Violencia Familiar y Tentativa de Feminicidio</p>
+</div>
+<div class="text-right">
+<span class="block text-label-sm text-on-surface-variant">Puntaje Total</span>
+<span class="text-display-lg font-display-lg text-primary">50%</span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Metric 1: Clinico -->
+<div class="bg-surface rounded-xl p-4 border border-outline-variant flex flex-col items-center text-center">
+<div class="relative w-24 h-24 mb-4">
+<svg class="w-full h-full" viewbox="0 0 100 100">
+<circle class="text-surface-container-high stroke-current" cx="50" cy="50" fill="transparent" r="40" stroke-width="10"></circle>
+<circle class="text-primary stroke-current progress-ring" cx="50" cy="50" fill="transparent" r="40" stroke-linecap="round" stroke-width="10" style="stroke-dasharray: 251.2; stroke-dashoffset: 125.6;"></circle>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center font-bold text-label-md">50%</div>
+</div>
+<span class="text-label-sm uppercase font-bold text-on-surface-variant">Clínico</span>
+<p class="text-label-sm text-on-surface-variant mt-1 px-2 leading-relaxed">Evaluación del juicio clínico en intervención inmediata.</p>
+</div>
+<!-- Metric 2: Etico -->
+<div class="bg-surface rounded-xl p-4 border border-outline-variant flex flex-col items-center text-center">
+<div class="relative w-24 h-24 mb-4">
+<svg class="w-full h-full" viewbox="0 0 100 100">
+<circle class="text-surface-container-high stroke-current" cx="50" cy="50" fill="transparent" r="40" stroke-width="10"></circle>
+<circle class="text-secondary stroke-current progress-ring" cx="50" cy="50" fill="transparent" r="40" stroke-linecap="round" stroke-width="10" style="stroke-dasharray: 251.2; stroke-dashoffset: 75.36;"></circle>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center font-bold text-label-md">70%</div>
+</div>
+<span class="text-label-sm uppercase font-bold text-on-surface-variant">Ético</span>
+<p class="text-label-sm text-on-surface-variant mt-1 px-2 leading-relaxed">Consideración de derechos y confidencialidad.</p>
+</div>
+<!-- Metric 3: Normativo -->
+<div class="bg-surface rounded-xl p-4 border border-outline-variant flex flex-col items-center text-center">
+<div class="relative w-24 h-24 mb-4">
+<svg class="w-full h-full" viewbox="0 0 100 100">
+<circle class="text-surface-container-high stroke-current" cx="50" cy="50" fill="transparent" r="40" stroke-width="10"></circle>
+<circle class="text-error stroke-current progress-ring" cx="50" cy="50" fill="transparent" r="40" stroke-linecap="round" stroke-width="10" style="stroke-dasharray: 251.2; stroke-dashoffset: 175.84;"></circle>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center font-bold text-label-md">30%</div>
+</div>
+<span class="text-label-sm uppercase font-bold text-on-surface-variant">Normativo</span>
+<p class="text-label-sm text-on-surface-variant mt-1 px-2 leading-relaxed">Activación correcta de rutas legales y protocolos.</p>
+</div>
+</div>
+<div class="mt-8 flex justify-end">
+<button class="text-primary font-bold text-label-md flex items-center gap-2 hover:translate-x-1 transition-transform">
+                                Ver reporte detallado por ítem
+                                <span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Right Sidebar Stats Section -->
+<div class="col-span-12 lg:col-span-4 space-y-gutter">
+<!-- Stats Card -->
+<div class="bg-primary text-on-primary rounded-xl p-6 shadow-md overflow-hidden relative group">
+<div class="relative z-10">
+<span class="material-symbols-outlined text-[32px] opacity-80" data-icon="trending_up">trending_up</span>
+<h4 class="text-label-md mt-4 opacity-90">Tasa de Aprobación</h4>
+<div class="flex items-baseline gap-2 mt-1">
+<p class="text-display-lg font-display-lg">42%</p>
+<span class="text-label-sm bg-on-primary/20 px-2 py-0.5 rounded-full">+5.2%</span>
+</div>
+<p class="text-label-sm mt-4 opacity-70">Promedio general de este periodo académico.</p>
+</div>
+<div class="absolute -bottom-6 -right-6 opacity-10 group-hover:scale-110 transition-transform duration-500">
+<span class="material-symbols-outlined text-[140px]" data-icon="school">school</span>
+</div>
+</div>
+<!-- Summary Card -->
+<div class="glass-card rounded-xl p-6 shadow-sm">
+<h4 class="font-headline-md text-label-md uppercase tracking-wide text-on-surface-variant mb-4">Resumen de Casos</h4>
+<div class="space-y-4">
+<div class="flex justify-between items-center">
+<span class="text-label-md">Casos Intentados</span>
+<span class="font-bold">12</span>
+</div>
+<div class="h-[2px] bg-surface-container-high w-full"></div>
+<div class="flex justify-between items-center">
+<span class="text-label-md">Promedio Etico</span>
+<span class="font-bold text-secondary">68%</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-label-md">Promedio Clinico</span>
+<span class="font-bold text-primary">54%</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-label-md">Promedio Normativo</span>
+<span class="font-bold text-error">32%</span>
+</div>
+</div>
+</div>
+<!-- Clinical Illustration -->
+<div class="rounded-xl overflow-hidden shadow-sm h-48 relative border border-outline-variant">
+<img class="w-full h-full object-cover grayscale-[0.2] hover:grayscale-0 transition-all duration-700" data-alt="A clean, professional psychological consultation office setting. The room is modern with soft natural lighting coming through a window. Minimalist wooden furniture, a small green plant, and a comfortable armchair create a sense of calm and clinical focus. The color palette is composed of soft teals and neutral grays, reflecting an academic and empathetic atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdMtugouuNQ6LQMymRf_0DD6xMRPQ7HE8WvPNCZOpbeys2PFGxHA4M3Ye0ZOUsEx3IyHI4xYS78cUQCPkdLVMXO8BLic7XZMDuR_ur_0AfmrwrH3XsMaKhxKGHmrPvjYMsrmJZ5rsQoh-WxUD_eG_DJa0gTqdnsQz142dJrMO9ikhIvFxpcPbp9YCFqFmhFWWR554vuwtgPVtYZMGSXmITWS4lrfujMcQMQUYxL07zUzUlzFniskYs-f1sn1OBkAmSAiPo5j7CnZA"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-tertiary-fixed/80 to-transparent flex flex-col justify-end p-4">
+<p class="text-on-primary text-label-sm font-bold uppercase tracking-widest">Enfoque Académico</p>
+<p class="text-on-primary/80 text-label-sm">Formando profesionales con rigor ético.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="ml-64 p-6 flex flex-col md:flex-row justify-between items-center w-auto bg-surface-container-lowest dark:bg-inverse-surface border-t border-outline-variant">
+<div class="text-label-sm font-label-sm text-secondary dark:text-secondary-fixed mb-4 md:mb-0">
+            © 2024 Misión Psicosocial - Simulador Académico de Psicología Social
+        </div>
+<div class="flex gap-6">
+<a class="text-on-surface-variant text-label-sm font-label-sm hover:underline hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant text-label-sm font-label-sm hover:underline hover:text-primary transition-colors" href="#">Terms of Service</a>
+<a class="text-on-surface-variant text-label-sm font-label-sm hover:underline hover:text-primary transition-colors" href="#">Contact Support</a>
+</div>
+</footer>
+<!-- Micro-interaction Scripts -->
+<script>
+        // Placeholder for future interactivity (e.g., clicking table rows updates the Detail card)
+        document.querySelectorAll('table tbody tr').forEach(row => {
+            row.addEventListener('click', () => {
+                // Interactive highlight logic
+                document.querySelectorAll('table tbody tr').forEach(r => r.classList.remove('bg-primary/5'));
+                row.classList.add('bg-primary/5');
+            });
+        });
+    </script>
+</body></html>

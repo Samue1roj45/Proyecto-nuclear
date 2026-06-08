@@ -1,0 +1,224 @@
+<div class="login-page relative min-h-screen flex items-center justify-center p-4 overflow-hidden" [class.login-exit]="transitioning">
+
+  <div class="login-bg absolute inset-0 z-0 bg-[#0b3a42]">
+    <video class="absolute inset-0 w-full h-full object-cover" autoplay muted loop playsinline>
+      <source src="login-bg.mp4" type="video/mp4" />
+    </video>
+    <div class="login-veil absolute inset-0 bg-black/5 transition-colors"></div>
+  </div>
+
+  <div class="login-card relative z-10 w-full max-w-[340px] md:max-w-[360px] rounded-xl p-5 md:p-6">
+    <div class="flex flex-col items-center text-center mb-3">
+      <div class="login-brand-icon w-9 h-9 rounded-lg flex items-center justify-center mb-2">
+        <span class="material-symbols-outlined text-xl">psychology</span>
+      </div>
+      <p class="login-subtitle text-xs uppercase font-semibold">Simulador Académico</p>
+      <h1 class="text-lg font-manrope font-bold">Misión Psicosocial</h1>
+    </div>
+
+    <!-- Iniciar sesión -->
+    <ng-container *ngIf="view === 'login'">
+      <h2 class="text-base font-manrope font-bold mb-3 text-center">Iniciar sesión</h2>
+
+      <form (ngSubmit)="login()" class="space-y-3">
+        <div>
+          <label class="block text-sm font-medium mb-1">Correo</label>
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-lg">mail</span>
+            <input type="email" [(ngModel)]="email" name="email"
+                   class="login-input w-full rounded-lg pl-9 pr-3 py-2.5 text-sm outline-none"
+                   placeholder="tu@correo.com" required />
+          </div>
+        </div>
+
+        <div>
+          <div class="flex justify-between items-center mb-1">
+            <label class="text-sm font-medium">Contraseña</label>
+            <button type="button" (click)="openForgot()" class="login-link text-xs hover:underline">¿Olvidaste tu contraseña?</button>
+          </div>
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-lg">lock</span>
+            <input [type]="showPassword ? 'text' : 'password'" [(ngModel)]="password" name="password"
+                   class="login-input w-full rounded-lg pl-9 pr-9 py-2.5 text-sm outline-none" required />
+            <button type="button" (click)="showPassword = !showPassword" class="absolute right-3 top-1/2 -translate-y-1/2">
+              <span class="material-symbols-outlined text-lg">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
+            </button>
+          </div>
+        </div>
+
+      <p *ngIf="error" class="text-sm login-error px-3 py-2 rounded-lg">{{ error }}</p>
+        <p *ngIf="success" class="text-sm login-success px-3 py-2 rounded-lg">{{ success }}</p>
+
+        <button type="submit" [disabled]="loading || transitioning"
+                class="login-submit neon-btn w-full bg-primary text-on-primary py-2.5 rounded-full text-sm font-semibold flex items-center justify-center gap-2 hover:bg-primary-container transition-all active:scale-[0.98] disabled:opacity-60">
+          {{ loading || transitioning ? 'Ingresando...' : 'Entrar al simulador' }}
+          <span class="material-symbols-outlined text-lg">arrow_forward</span>
+        </button>
+      </form>
+
+      <ng-container *ngTemplateOutlet="socialAuth"></ng-container>
+
+      <div class="login-register-box mt-4 p-3 rounded-lg">
+        <p class="text-xs text-center mb-2">¿Eres nuevo en el simulador?</p>
+        <button type="button" (click)="openRegister()"
+                class="login-register-btn w-full py-2 rounded-full text-sm font-semibold flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-lg">person_add</span>
+          Crear cuenta de estudiante
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- Recuperar contraseña: solicitar código -->
+    <ng-container *ngIf="view === 'forgot-request'">
+      <h2 class="text-base font-manrope font-bold mb-2 text-center">Recuperar contraseña</h2>
+      <p class="text-xs text-center mb-3 opacity-90">Ingresa tu correo y te enviaremos un código de recuperación a tu bandeja.</p>
+
+      <form (ngSubmit)="requestResetCode()" class="space-y-3">
+        <div>
+          <label class="block text-sm font-medium mb-1">Correo registrado</label>
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-lg">mail</span>
+            <input type="email" [(ngModel)]="email" name="forgotEmail"
+                   class="login-input w-full rounded-lg pl-9 pr-3 py-2.5 text-sm outline-none" required />
+          </div>
+        </div>
+
+        <p *ngIf="error" class="text-sm login-error px-3 py-2 rounded-lg">{{ error }}</p>
+
+        <button type="submit" [disabled]="loading"
+                class="login-submit neon-btn w-full bg-primary text-on-primary py-2.5 rounded-full text-sm font-semibold disabled:opacity-60">
+          {{ loading ? 'Enviando correo...' : 'Enviar código al correo' }}
+        </button>
+        <button type="button" (click)="backToLogin()" class="login-link w-full text-center text-xs hover:underline">Volver al inicio de sesión</button>
+      </form>
+    </ng-container>
+
+    <!-- Recuperar contraseña: nueva contraseña -->
+    <ng-container *ngIf="view === 'forgot-reset'">
+      <h2 class="text-base font-manrope font-bold mb-2 text-center">Nueva contraseña</h2>
+
+      <p *ngIf="success" class="text-sm login-success px-3 py-2 rounded-lg mb-3">{{ success }}</p>
+      <p class="text-xs text-center mb-3 opacity-90">Revisa tu correo (y la carpeta de spam) e ingresa el código de 6 dígitos.</p>
+
+      <form (ngSubmit)="resetPassword()" class="space-y-3">
+        <div>
+          <label class="block text-sm font-medium mb-1">Código</label>
+          <input type="text" [(ngModel)]="resetCode" name="resetCode" maxlength="6"
+                 class="login-input w-full rounded-lg px-3 py-2.5 text-sm outline-none text-center tracking-widest" required />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-1">Nueva contraseña</label>
+          <div class="relative">
+            <input [type]="showNewPassword ? 'text' : 'password'" [(ngModel)]="newPassword" name="newPassword"
+                   class="login-input w-full rounded-lg pl-3 pr-9 py-2.5 text-sm outline-none" required />
+            <button type="button" (click)="showNewPassword = !showNewPassword" class="absolute right-3 top-1/2 -translate-y-1/2">
+              <span class="material-symbols-outlined text-lg">{{ showNewPassword ? 'visibility_off' : 'visibility' }}</span>
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-1">Confirmar contraseña</label>
+          <input type="password" [(ngModel)]="confirmPassword" name="confirmPassword"
+                 class="login-input w-full rounded-lg px-3 py-2.5 text-sm outline-none" required />
+        </div>
+
+        <p *ngIf="error" class="text-sm login-error px-3 py-2 rounded-lg">{{ error }}</p>
+        <p *ngIf="success" class="text-sm login-success px-3 py-2 rounded-lg">{{ success }}</p>
+
+        <button type="submit" [disabled]="loading"
+                class="login-submit neon-btn w-full bg-primary text-on-primary py-2.5 rounded-full text-sm font-semibold disabled:opacity-60">
+          {{ loading ? 'Guardando...' : 'Restablecer contraseña' }}
+        </button>
+        <button type="button" (click)="backToLogin()" class="login-link w-full text-center text-xs hover:underline">Volver al inicio de sesión</button>
+      </form>
+    </ng-container>
+
+    <!-- Crear cuenta -->
+    <ng-container *ngIf="view === 'register'">
+      <h2 class="text-base font-manrope font-bold mb-2 text-center">Crear cuenta</h2>
+      <p class="text-xs text-center mb-3 opacity-90">Regístrate como estudiante para acceder al simulador.</p>
+
+      <form (ngSubmit)="register()" class="space-y-3">
+        <div>
+          <label class="block text-sm font-medium mb-1">Nombre completo</label>
+          <input type="text" [(ngModel)]="registerName" name="registerName"
+                 class="login-input w-full rounded-lg px-3 py-2.5 text-sm outline-none" required />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-1">Correo</label>
+          <input type="email" [(ngModel)]="registerEmail" name="registerEmail"
+                 class="login-input w-full rounded-lg px-3 py-2.5 text-sm outline-none" required />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-1">Contraseña</label>
+          <div class="relative">
+            <input [type]="showRegisterPassword ? 'text' : 'password'" [(ngModel)]="registerPassword" name="registerPassword"
+                   class="login-input w-full rounded-lg pl-3 pr-9 py-2.5 text-sm outline-none" required />
+            <button type="button" (click)="showRegisterPassword = !showRegisterPassword" class="absolute right-3 top-1/2 -translate-y-1/2">
+              <span class="material-symbols-outlined text-lg">{{ showRegisterPassword ? 'visibility_off' : 'visibility' }}</span>
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-1">Confirmar contraseña</label>
+          <input type="password" [(ngModel)]="registerConfirm" name="registerConfirm"
+                 class="login-input w-full rounded-lg px-3 py-2.5 text-sm outline-none" required />
+        </div>
+
+        <p *ngIf="error" class="text-sm login-error px-3 py-2 rounded-lg">{{ error }}</p>
+
+        <button type="submit" [disabled]="loading"
+                class="login-submit neon-btn w-full bg-primary text-on-primary py-2.5 rounded-full text-sm font-semibold disabled:opacity-60">
+          {{ loading ? 'Creando cuenta...' : 'Crear cuenta' }}
+        </button>
+
+        <ng-container *ngTemplateOutlet="socialAuth"></ng-container>
+
+        <button type="button" (click)="backToLogin()" class="login-link w-full text-center text-xs hover:underline">Ya tengo cuenta — Iniciar sesión</button>
+      </form>
+    </ng-container>
+
+    <ng-template #socialAuth>
+      <div *ngIf="oauthReady && oauth.isAvailable" class="login-social mt-3">
+        <div class="login-social-divider">
+          <span>o continúa con</span>
+        </div>
+        <div class="flex flex-col gap-2">
+          <button *ngIf="oauth.hasGoogle" type="button" (click)="signInWithGoogle()" [disabled]="loading || transitioning"
+                  class="login-social-btn login-social-google">
+            <svg viewBox="0 0 24 24" class="w-5 h-5" aria-hidden="true"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Google
+          </button>
+          <button *ngIf="oauth.hasFacebook" type="button" (click)="signInWithFacebook()" [disabled]="loading || transitioning"
+                  class="login-social-btn login-social-facebook">
+            <svg viewBox="0 0 24 24" class="w-5 h-5" aria-hidden="true"><path fill="currentColor" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            Facebook
+          </button>
+        </div>
+      </div>
+    </ng-template>
+
+    <div class="login-footer mt-3 flex justify-between text-xs">
+      <span>© 2026 Misión Psicosocial</span>
+      <div class="flex gap-3">
+        <span class="login-link opacity-60 cursor-default" title="Próximamente">Privacidad</span>
+        <a href="mailto:soporte@misionpsicosocial.com" class="login-link hover:underline">Soporte</a>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="transitioning" class="login-transition-overlay">
+    <div class="login-transition-sweep"></div>
+    <div class="login-transition-content relative z-10">
+      <span class="material-symbols-outlined">psychology</span>
+      <h3>Bienvenido, {{ welcomeName }}</h3>
+      <p>Preparando tu simulador...</p>
+      <div class="login-transition-ring"></div>
+    </div>
+  </div>
+</div>

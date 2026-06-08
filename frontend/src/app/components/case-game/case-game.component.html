@@ -1,0 +1,105 @@
+<div #gameRoot class="case-game-root" [class.case-game-root--fullscreen]="isFullscreen">
+  <!-- Barra superior -->
+  <div class="case-game-toolbar glass-mirror">
+    <div class="case-game-toolbar__left">
+      <span class="material-symbols-outlined">sports_esports</span>
+      <div>
+        <p class="case-game-toolbar__title">{{ caseDetail.title }}</p>
+        <p class="case-game-toolbar__sub">{{ currentScene.title }}</p>
+      </div>
+    </div>
+    <div class="case-game-toolbar__actions">
+      <span class="case-game-badge">{{ progressLabel }}</span>
+      <button type="button" class="case-game-btn" (click)="showHud = !showHud" title="Mostrar/ocultar HUD">
+        <span class="material-symbols-outlined">{{ showHud ? 'visibility' : 'visibility_off' }}</span>
+      </button>
+      <button type="button" class="case-game-btn" (click)="toggleFullscreen()" title="Pantalla completa">
+        <span class="material-symbols-outlined">{{ isFullscreen ? 'fullscreen_exit' : 'fullscreen' }}</span>
+      </button>
+      <button type="button" class="case-game-btn case-game-btn--exit" (click)="exitGame()">
+        <span class="material-symbols-outlined">close</span> Salir
+      </button>
+    </div>
+  </div>
+
+  <!-- Canvas -->
+  <div class="case-game-stage">
+    <canvas #canvas [width]="width" [height]="height" class="case-game-canvas"></canvas>
+
+    <!-- Intro -->
+    <div *ngIf="gamePhase === 'intro'" class="case-game-overlay glass-mirror">
+      <span class="material-symbols-outlined case-game-overlay__icon">emergency</span>
+      <h3>Simulador inmersivo</h3>
+      <p class="case-game-quote" *ngIf="caseDetail.contextQuote">"{{ caseDetail.contextQuote }}"</p>
+      <p class="case-game-hint">Explora la escena y responde cada decisión. Se aprueba con {{ passThreshold }}% o más.</p>
+      <div class="case-game-controls-hint">
+        <span><kbd>WASD</kbd> mover</span>
+        <span><kbd>E</kbd> responder</span>
+        <span><kbd>F</kbd> pantalla completa</span>
+      </div>
+      <button type="button" class="case-game-primary" (click)="startGame()">
+        <span class="material-symbols-outlined">play_arrow</span> Entrar a la escena
+      </button>
+    </div>
+
+    <!-- HUD -->
+    <div *ngIf="showHud && gamePhase === 'playing'" class="case-game-hud glass-mirror">
+      <p class="case-game-hud__title">{{ currentScene.subtitle }}</p>
+      <p class="case-game-hud__hint">{{ currentScene.hint }}</p>
+      <p *ngIf="moveHint" class="case-game-hud__tip">Usa WASD o flechas para desplazarte</p>
+      <button type="button" class="case-game-respond-btn" (click)="openDecision()">
+        <span class="material-symbols-outlined">psychology</span>
+        Responder decisión
+      </button>
+    </div>
+
+    <!-- Transición entre escenas -->
+    <div *ngIf="gamePhase === 'transition'" class="case-game-overlay case-game-overlay--dim glass-mirror">
+      <span class="material-symbols-outlined animate-spin">progress_activity</span>
+      <p>Cargando siguiente escena...</p>
+    </div>
+
+    <!-- Decisión -->
+    <div *ngIf="gamePhase === 'decision' && currentQuestion" class="case-game-decision glass-mirror">
+      <div class="case-game-decision__header">
+        <span class="material-symbols-outlined">psychology</span>
+        <div class="case-game-decision__head-text">
+          <p class="case-game-decision__phase">{{ progressLabel }}</p>
+          <h4>{{ currentQuestion.text }}</h4>
+        </div>
+        <button type="button" class="case-game-decision__close" (click)="closeDecision()" [disabled]="submitting" title="Volver a la escena">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div *ngIf="sortedOptions.length; else noOptions" class="case-game-decision__options">
+        <button
+          *ngFor="let opt of sortedOptions; let i = index"
+          type="button"
+          class="case-game-option glass-hover"
+          [disabled]="submitting"
+          (click)="previewMode ? selectPreviewOption() : selectOption(opt.id)"
+        >
+          <span class="case-game-option__index">{{ i + 1 }}</span>
+          <span class="case-game-option__text">{{ opt.text }}</span>
+        </button>
+      </div>
+      <ng-template #noOptions>
+        <p class="case-game-decision__empty">Esta pregunta no tiene opciones. Contacta al profesor.</p>
+      </ng-template>
+      <p *ngIf="submitting" class="case-game-decision__loading">Registrando decisión...</p>
+      <p *ngIf="previewMode" class="case-game-decision__preview">Modo vista previa (sin guardar puntaje)</p>
+    </div>
+
+    <!-- Resultado final -->
+    <div *ngIf="gamePhase === 'finished'" class="case-game-overlay glass-mirror">
+      <span class="material-symbols-outlined case-game-overlay__icon" [class.text-pass]="resultPassed">
+        {{ resultPassed ? 'emoji_events' : 'flag' }}
+      </span>
+      <h3>{{ resultPassed ? '¡Caso completado!' : 'Simulación finalizada' }}</h3>
+      <p>{{ resultMessage }}</p>
+      <div class="case-game-finished-actions">
+        <button type="button" class="case-game-primary" (click)="exitGame()">Volver al caso</button>
+      </div>
+    </div>
+  </div>
+</div>

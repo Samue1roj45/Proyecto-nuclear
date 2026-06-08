@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Misión Psicosocial - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed": "#151d1e",
+                        "inverse-on-surface": "#eff1f2",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "surface-tint": "#086878",
+                        "on-primary": "#ffffff",
+                        "on-secondary-container": "#046f7d",
+                        "primary": "#006474",
+                        "surface-container-low": "#f2f4f5",
+                        "on-primary-fixed-variant": "#004e5b",
+                        "outline": "#6f797c",
+                        "surface-container-high": "#e6e8e9",
+                        "outline-variant": "#bec8cb",
+                        "secondary": "#006876",
+                        "on-secondary-fixed-variant": "#004e59",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed": "#001f26",
+                        "surface-dim": "#d8dadb",
+                        "tertiary-fixed": "#dbe4e5",
+                        "inverse-primary": "#87d2e4",
+                        "on-primary-container": "#f3fcff",
+                        "on-error-container": "#93000a",
+                        "secondary-container": "#9eefff",
+                        "inverse-surface": "#2e3132",
+                        "surface-container": "#eceeef",
+                        "on-secondary-fixed": "#001f24",
+                        "primary-fixed-dim": "#87d2e4",
+                        "on-surface": "#191c1d",
+                        "tertiary-container": "#6c7576",
+                        "surface": "#f8fafb",
+                        "surface-variant": "#e1e3e4",
+                        "surface-bright": "#f8fafb",
+                        "error": "#ba1a1a",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed": "#9eefff",
+                        "tertiary": "#545c5e",
+                        "on-tertiary-container": "#f3fcfd",
+                        "primary-fixed": "#a9edff",
+                        "secondary-fixed-dim": "#82d3e2",
+                        "primary-container": "#2d7d8e",
+                        "on-background": "#191c1d",
+                        "on-secondary": "#ffffff",
+                        "surface-container-highest": "#e1e3e4",
+                        "tertiary-fixed-dim": "#bfc8c9",
+                        "background": "#f8fafb",
+                        "on-surface-variant": "#3f484b",
+                        "on-tertiary-fixed-variant": "#404849"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-sm": "12px",
+                        "stack-md": "24px",
+                        "stack-lg": "40px",
+                        "gutter": "20px",
+                        "base": "8px",
+                        "container-margin": "24px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-lg": ["Manrope"],
+                        "headline-md": ["Manrope"],
+                        "body-lg": ["Inter"],
+                        "headline-lg-mobile": ["Manrope"],
+                        "display-lg": ["Manrope"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-nav-shadow {
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+        }
+    </style>
+</head>
+<body class="bg-surface font-body-md text-on-surface">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full z-40 border-r border-outline-variant bg-surface-container-low dark:bg-inverse-surface w-64 flex flex-col">
+<div class="p-6 flex flex-col gap-1">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined" data-icon="psychology">psychology</span>
+</div>
+<h1 class="text-headline-md font-headline-md font-bold text-primary dark:text-primary-fixed">Misión Psicosocial</h1>
+</div>
+<p class="text-label-sm font-label-sm text-on-surface-variant px-1">Simulador Académico</p>
+</div>
+<nav class="flex-1 mt-4">
+<a class="flex items-center gap-3 bg-secondary-container text-on-secondary-container rounded-lg px-4 py-3 mx-2 scale-98 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-3 mx-2 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-label-md text-label-md">Users</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-3 mx-2 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="psychology">psychology</span>
+<span class="font-label-md text-label-md">Cases</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-3 mx-2 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="assessment">assessment</span>
+<span class="font-label-md text-label-md">Reports</span>
+</a>
+</nav>
+<div class="mt-auto border-t border-outline-variant p-4 flex flex-col gap-1">
+<a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-2 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-2 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-label-md text-label-md">Help</span>
+</a>
+</div>
+</aside>
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 left-64 z-30 flex justify-between items-center px-6 h-16 bg-surface dark:bg-on-tertiary-fixed border-b border-outline-variant">
+<div class="flex items-center flex-1">
+<div class="relative w-full max-w-md">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant material-symbols-outlined" data-icon="search">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full pl-10 pr-4 py-2 text-label-md focus:ring-2 focus:ring-primary" placeholder="Buscar casos o estudiantes..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<div class="h-8 w-px bg-outline-variant mx-2"></div>
+<div class="flex items-center gap-3">
+<div class="text-right hidden sm:block">
+<p class="text-label-md font-label-md text-on-surface">Estudiante Prueba</p>
+<p class="text-label-sm font-label-sm text-on-surface-variant">estudiante@simulador.com</p>
+</div>
+<button class="w-10 h-10 rounded-full bg-tertiary-fixed overflow-hidden border border-outline-variant">
+<img alt="User Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWIbTplCb6IZAWOqndt8xELtYSA5MoUrBzP-J4wKqn-qoTMsJmRkfHzsGZMyQh1mchfXcENDgKjkqof2AjIwrjJ6nvvYKsuAj0sf8cpu2yw6LPkCobg9F02aPZG1yXsF5mb88mVC6fTKxUXDJzw-Y-EYjgnbYE7MBwurr8__69AhqJ-vktnmnxSI2Mc0ElEnrOfD6tyrk50Of-yz6twmlVz7n31k2WxxepNsxy6ob_2xAgj8z4bLd_o8CPRjZuUfu6iPoW_kUDm7w"/>
+</button>
+</div>
+<button class="ml-4 px-4 py-2 rounded-full border border-outline text-label-md font-label-md hover:bg-error-container hover:text-on-error-container hover:border-error transition-all">
+                Cerrar sesión
+            </button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 mt-16 p-stack-lg min-h-screen">
+<div class="max-w-[1280px] mx-auto space-y-stack-lg">
+<!-- Header Section -->
+<section class="flex flex-col gap-2">
+<h2 class="text-headline-lg font-headline-lg text-on-surface">Panel de estudiante</h2>
+<p class="text-body-lg text-on-surface-variant">Recorre el caso, responde con criterio clínico y consulta tus reportes de desempeño.</p>
+</section>
+<!-- Statistics Grid (Bento Style) -->
+<section class="grid grid-cols-1 md:grid-cols-4 gap-gutter">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 transition-all hover:active-nav-shadow">
+<p class="text-label-md font-label-md text-on-surface-variant mb-2">TOTAL ESTUDIANTES</p>
+<div class="flex items-end justify-between">
+<span class="text-display-lg font-display-lg text-primary">1</span>
+<div class="p-2 bg-primary-fixed rounded-lg text-on-primary-fixed">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 transition-all hover:active-nav-shadow">
+<p class="text-label-md font-label-md text-on-surface-variant mb-2">ESTUDIANTES HABILITADOS</p>
+<div class="flex items-end justify-between">
+<span class="text-display-lg font-display-lg text-secondary">1</span>
+<div class="p-2 bg-secondary-fixed rounded-lg text-on-secondary-fixed">
+<span class="material-symbols-outlined" data-icon="check_circle">check_circle</span>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 transition-all hover:active-nav-shadow">
+<p class="text-label-md font-label-md text-on-surface-variant mb-2">CASOS CREADOS</p>
+<div class="flex items-end justify-between">
+<span class="text-display-lg font-display-lg text-on-surface">1</span>
+<div class="p-2 bg-tertiary-fixed rounded-lg text-on-tertiary-fixed">
+<span class="material-symbols-outlined" data-icon="folder">folder</span>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 transition-all hover:active-nav-shadow border-l-4 border-l-error">
+<p class="text-label-md font-label-md text-on-surface-variant mb-2">ESTUDIANTES BLOQUEADOS</p>
+<div class="flex items-end justify-between">
+<span class="text-display-lg font-display-lg text-error">0</span>
+<div class="p-2 bg-error-container rounded-lg text-on-error-container">
+<span class="material-symbols-outlined" data-icon="block">block</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Case Section -->
+<section class="space-y-gutter">
+<div class="flex items-center justify-between">
+<h3 class="text-headline-md font-headline-md text-on-surface">Casos Disponibles</h3>
+<div class="flex gap-2">
+<span class="px-4 py-1 bg-primary-container text-on-primary-container rounded-full text-label-sm">Actualizados recientemente</span>
+</div>
+</div>
+<!-- Main Case Card (Asymmetric Layout) -->
+<article class="group bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden flex flex-col md:flex-row transition-all hover:active-nav-shadow">
+<div class="relative w-full md:w-1/3 h-64 md:h-auto overflow-hidden bg-surface-container">
+<img alt="Therapy Room" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A professional yet warm clinical setting where a female therapist sits in a soft neutral-toned armchair across from an empty space. The room is filled with soft, natural morning light filtering through thin linen curtains. The atmosphere is calm, empathetic, and modern, using a color palette of soft teals, grays, and whites." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjkwslr8U4Zg1XklPZ8d_U9BW9rWhEnZYMBjtS5_-jA2teROU9uoahJgmOj-HYyXQZFZbsuCesZtkUV00y_E6HolZnla_fESU_TPVQZO0j9bZm9LLVOMrdoqPHcS9dM1_ikMbSBPqOjGGsP_Ug6XWafrw7ii308Fbu8evZE9XELTW_7zfrr0beKA5FYo-iqVibHGFO0xYNrjF0GxgZnqeYsj7gffBjt8WKnAXSeMKYSc_1dsXGj9LF9qepZSdq-FSie5gDZ_Hxqe8"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+<div class="absolute bottom-4 left-4 flex gap-2">
+<span class="bg-primary px-3 py-1 rounded-full text-white text-label-sm">Nivel Intermedio</span>
+</div>
+</div>
+<div class="p-8 flex-1 flex flex-col justify-between">
+<div>
+<div class="flex flex-wrap items-center gap-3 mb-4">
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-label-sm font-label-sm">Violencia basada en genero</span>
+<span class="bg-error-container text-on-error-container px-3 py-1 rounded-full text-label-sm font-label-sm">Caso crítico</span>
+</div>
+<h4 class="text-headline-md font-headline-md text-on-surface mb-4">Caso 1: Violencia familiar y tentativa de feminicidio</h4>
+<p class="text-body-md text-on-surface-variant mb-6 leading-relaxed">
+                                Simulación orientada a desafiar el juicio clínico, ético y normativo del estudiante de psicología, integrando atención en crisis, restablecimiento de derechos, violencia basada en genero, riesgo de feminicidio, duelo y activación de rutas de atención.
+                            </p>
+<div class="flex flex-wrap gap-2 mb-8">
+<span class="bg-surface-container-high px-3 py-1 rounded-lg text-label-sm text-on-surface-variant border border-outline-variant">Lectura de contexto</span>
+<span class="bg-surface-container-high px-3 py-1 rounded-lg text-label-sm text-on-surface-variant border border-outline-variant">Toma de decisiones bajo presion</span>
+<span class="bg-surface-container-high px-3 py-1 rounded-lg text-label-sm text-on-surface-variant border border-outline-variant">Aplicacion de normativa colombiana</span>
+<span class="bg-surface-container-high px-3 py-1 rounded-lg text-label-sm text-on-surface-variant border border-outline-variant">Intervencion etica</span>
+<span class="bg-surface-container-high px-3 py-1 rounded-lg text-label-sm text-on-surface-variant border border-outline-variant">Primeros Auxilios Psicologicos</span>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-outline-variant">
+<div class="flex items-center gap-4">
+<div class="flex -space-x-3">
+<img alt="Student" class="w-10 h-10 rounded-full border-2 border-white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCUkL550iKPKmcfZw_n9JRdd45tdxUW_nYT8aGU5WxDdIxPVLjJvbC0i_R1bpM_5aTvxuWpif3L9mbBPmQkQ2S9MNyHpDrJ1yfAY8SY69mD7qfTVWvN8--nhHwXC-td4kl9DWAJ6-S2ybI79qIK7zO3FgfbjsMniu49cZ1qAGFmcTZYLF08Nm5_q6phYc5quR5Yrdt0cTIZurVQY7vcbmC7cdPwApxJz2V1Z3gpkvzuij4XDoQR-a2kgWSNZsMCgXC7HmeOki7_ABI"/>
+<img alt="Student" class="w-10 h-10 rounded-full border-2 border-white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2SopNB1kQv2IVkxHb7okItOINnsdN9_xgrg_OcYWq5pzXJlWF4KC2nrky8FRd9J6g0fj6AGdhSUBVxdQTVdfqMvFcvDg0Hj_FfixBJBBzJYkMkxQwLddOEm-dcIW9uc-MidqsOlupvhRa9o1gfJ2vJX42Kl3UMIMsmnoRdWQupeCkLZKgSRuIpVfEYW5ggzptcsMQwpAdah6ea4XGnCuklbDcXe0VF1JE2jvBlZEsV_TQK_WIs5vMgZgRqUVVIJQg1YEn7iA7aLI"/>
+<div class="w-10 h-10 rounded-full border-2 border-white bg-surface-container-highest flex items-center justify-center text-label-sm text-on-surface-variant">+24</div>
+</div>
+<span class="text-label-sm text-on-surface-variant">Estudiantes cursando este caso</span>
+</div>
+<div class="flex items-center gap-4 w-full sm:w-auto">
+<div class="flex flex-col text-right hidden sm:block">
+<span class="text-label-sm text-error font-bold">CASO PERDIDO</span>
+<span class="text-[10px] text-on-surface-variant uppercase tracking-wider">Requiere reinicio de intentos</span>
+</div>
+<button class="flex-1 sm:flex-none bg-primary text-on-primary px-8 py-3 rounded-full font-label-md hover:bg-primary-container transition-all active:scale-95 shadow-sm flex items-center justify-center gap-2">
+                                    Solicitar Reinicio
+                                    <span class="material-symbols-outlined" data-icon="refresh">refresh</span>
+</button>
+</div>
+</div>
+</div>
+</article>
+</section>
+</div>
+</main>
+<!-- Footer -->
+<footer class="ml-64 p-6 flex justify-between items-center w-auto bg-surface-container-lowest dark:bg-inverse-surface border-t border-outline-variant">
+<div class="flex flex-col gap-1">
+<span class="text-label-md font-label-md font-bold text-on-surface">Misión Psicosocial</span>
+<p class="text-label-sm font-label-sm text-on-surface-variant">© 2024 Misión Psicosocial - Simulador Académico de Psicología Social</p>
+</div>
+<div class="flex gap-6">
+<a class="text-label-sm font-label-sm text-on-surface-variant hover:underline transition-colors" href="#">Privacy Policy</a>
+<a class="text-label-sm font-label-sm text-on-surface-variant hover:underline transition-colors" href="#">Terms of Service</a>
+<a class="text-label-sm font-label-sm text-on-surface-variant hover:underline transition-colors" href="#">Contact Support</a>
+</div>
+</footer>
+<script>
+        // Micro-interaction for cards
+        document.querySelectorAll('article, .bg-surface-container-lowest').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-4px)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body></html>

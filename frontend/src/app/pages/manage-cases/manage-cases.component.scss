@@ -1,0 +1,60 @@
+/* Efecto espejo/vidrio permanente — solo modal crear/editar caso */
+.case-modal-panel {
+  background: rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(94, 234, 255, 0.85) !important;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 0 12px rgba(255, 255, 255, 0.55),
+    0 0 24px rgba(255, 255, 255, 0.22),
+    0 0 16px rgba(94, 234, 255, 0.45),
+    0 0 32px rgba(94, 234, 255, 0.25);
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.case-modal-panel h3 {
+  color: #5eeaff !important;
+  text-shadow:
+    0 0 12px rgba(94, 234, 255, 0.65),
+    0 0 24px rgba(0, 212, 240, 0.35),
+    0 2px 8px rgba(0, 0, 0, 0.6) !important;
+}
+
+.case-modal-panel label {
+  color: #a9edff !important;
+  text-shadow: 0 0 8px rgba(169, 237, 255, 0.4), 0 1px 6px rgba(0, 0, 0, 0.7) !important;
+}
+
+.case-modal-panel input:not([type='checkbox']),
+.case-modal-panel textarea {
+  background: rgba(255, 255, 255, 0.06) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 0 8px rgba(255, 255, 255, 0.3),
+    0 0 16px rgba(94, 234, 255, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+  &::placeholder {
+    color: rgba(169, 237, 255, 0.55);
+  }
+
+  &:focus {
+    border-color: rgba(0, 212, 240, 0.9) !important;
+    box-shadow:
+      0 0 12px rgba(0, 212, 240, 0.5),
+      0 0 24px rgba(94, 234, 255, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    outline: none;
+  }
+}
+
+.case-modal-panel .case-competency-tag {
+  background: rgba(94, 234, 255, 0.14) !important;
+  border: 1px solid rgba(94, 234, 255, 0.65);
+  box-shadow: 0 0 8px rgba(94, 234, 255, 0.25);
+}

@@ -1,0 +1,47 @@
+<div class="max-w-4xl mx-auto p-8 space-y-6">
+  <div class="flex justify-between items-end">
+    <div>
+      <h2 class="text-3xl font-manrope font-semibold text-on-surface">Solicitudes de Reinicio</h2>
+      <p class="text-on-surface-variant mt-1">Aprueba o rechaza las solicitudes de reinicio de intentos. Las rechazadas se eliminan de la lista (el estudiante recibe una notificación).</p>
+    </div>
+    <button (click)="togglePending()" class="text-sm text-primary font-medium hover:underline">
+      {{ pendingOnly ? 'Ver historial completo' : 'Ver solo pendientes' }}
+    </button>
+  </div>
+
+  <div class="space-y-3" *ngIf="!loading">
+    <div *ngIf="requests.length === 0" class="bg-surface-container-lowest border border-outline-variant rounded-xl p-12 text-center text-on-surface-variant">
+      <span class="material-symbols-outlined text-5xl mb-2">inbox</span>
+      <p>No hay solicitudes {{ pendingOnly ? 'pendientes' : '' }}.</p>
+    </div>
+
+    <div *ngFor="let r of requests"
+         class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 flex items-center gap-4">
+      <app-user-avatar [avatarUrl]="r.studentAvatar" [fullName]="r.studentName"
+                       imgClass="w-12 h-12 rounded-full object-cover border border-outline-variant" />
+      <div class="flex-1 min-w-0">
+        <p class="font-medium text-on-surface">{{ r.studentName }}</p>
+        <p class="text-xs text-on-surface-variant">{{ r.studentEmail }}</p>
+        <p class="text-sm text-on-surface-variant mt-1">
+          Solicita reiniciar: <span class="font-medium text-on-surface">{{ r.caseTitle }}</span>
+        </p>
+        <p class="text-xs text-on-surface-variant mt-0.5">{{ r.timeAgo }}</p>
+      </div>
+      <div class="flex items-center gap-2" *ngIf="!r.approved">
+        <button (click)="approve(r)"
+                class="bg-primary text-on-primary px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-container flex items-center gap-1">
+          <span class="material-symbols-outlined text-lg">check</span> Aprobar
+        </button>
+        <button (click)="reject(r)"
+                class="border border-error text-error px-4 py-2 rounded-lg text-sm font-medium hover:bg-error-container flex items-center gap-1">
+          <span class="material-symbols-outlined text-lg">close</span> Rechazar
+        </button>
+      </div>
+      <span *ngIf="r.approved" class="px-3 py-1 rounded-full text-xs font-semibold bg-secondary-container text-on-secondary-container">
+        Aprobada
+      </span>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="p-12 text-center text-on-surface-variant">Cargando solicitudes...</div>
+</div>

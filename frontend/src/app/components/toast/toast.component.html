@@ -1,0 +1,17 @@
+<div class="toast-container fixed bottom-6 right-6 z-[100] flex flex-col gap-3 w-80">
+  <div
+    *ngFor="let t of toast.toasts()"
+    class="toast-item glass-mirror flex items-center gap-3 px-4 py-3 rounded-xl text-sm animate-slide-in"
+    [class.toast-item--success]="t.type === 'success'"
+    [class.toast-item--error]="t.type === 'error'"
+    [class.toast-item--info]="t.type === 'info'"
+  >
+    <span class="material-symbols-outlined toast-item__icon">
+      {{ t.type === 'success' ? 'check_circle' : t.type === 'error' ? 'error' : 'info' }}
+    </span>
+    <span class="flex-1 toast-item__message">{{ t.message }}</span>
+    <button type="button" (click)="toast.dismiss(t.id)" class="toast-item__close">
+      <span class="material-symbols-outlined text-lg">close</span>
+    </button>
+  </div>
+</div>

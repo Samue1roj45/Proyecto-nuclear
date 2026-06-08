@@ -1,0 +1,120 @@
+<div class="max-w-[1280px] mx-auto p-8 space-y-6">
+  <div class="flex justify-between items-end">
+    <div>
+      <h2 class="text-3xl font-manrope font-semibold text-on-surface neon-heading">Grupos de Estudiantes</h2>
+      <p class="text-on-surface-variant mt-1">Organiza estudiantes en grupos. Útil para asignar cohortes y dar seguimiento por clase.</p>
+    </div>
+    <button type="button" (click)="openCreate()" class="neon-btn bg-primary text-on-primary px-6 py-2.5 rounded-lg flex items-center gap-2 text-sm font-medium hover:bg-primary-container transition-all">
+      <span class="material-symbols-outlined text-xl">group_add</span>
+      Crear Grupo
+    </button>
+  </div>
+
+  <div class="relative max-w-md">
+    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant material-symbols-outlined text-xl">search</span>
+    <input [(ngModel)]="search" placeholder="Buscar grupos o estudiantes..."
+           class="glass-input w-full rounded-lg pl-10 pr-4 py-2 text-sm outline-none" />
+  </div>
+
+  <div *ngIf="loading" class="text-center py-16 text-on-surface-variant">Cargando grupos...</div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5" *ngIf="!loading">
+    <article *ngFor="let g of filteredGroups"
+             class="neon-card-blue glass-hover rounded-xl p-5 flex flex-col transition-all">
+      <div class="flex items-start justify-between gap-3 mb-3">
+        <div>
+          <h3 class="font-manrope font-semibold text-on-surface text-lg">{{ g.name }}</h3>
+          <p class="text-xs text-on-surface-variant mt-1">Creado: {{ g.createdAt }}</p>
+        </div>
+        <span class="neon-badge-cyan px-3 py-1 text-xs font-semibold shrink-0">{{ g.memberCount }} est.</span>
+      </div>
+
+      <p class="text-sm text-on-surface-variant mb-4 min-h-[2.5rem]">
+        {{ g.description || 'Sin descripción' }}
+      </p>
+
+      <div class="flex flex-wrap gap-2 mb-4" *ngIf="g.members?.length">
+        <div *ngFor="let m of g.members.slice(0, 4)" class="flex items-center gap-1.5 neon-pill px-2 py-1 rounded-full text-xs">
+          <app-user-avatar [avatarUrl]="m.avatarUrl" [fullName]="m.fullName"
+                           imgClass="w-5 h-5 rounded-full object-cover" [alt]="m.fullName" />
+          <span>{{ m.fullName.split(' ')[0] }}</span>
+        </div>
+        <span *ngIf="g.members.length > 4" class="text-xs text-on-surface-variant px-2 py-1">+{{ g.members.length - 4 }} más</span>
+      </div>
+      <p *ngIf="!g.members?.length" class="text-xs text-on-surface-variant mb-4 italic">Sin estudiantes asignados</p>
+
+      <div class="flex items-center gap-2 mt-auto pt-4 border-t border-outline-variant">
+        <button type="button" (click)="openEdit(g)" class="flex-1 bg-secondary-container text-on-secondary-container px-3 py-2 rounded-lg text-sm font-medium hover:opacity-90 flex items-center justify-center gap-1">
+          <span class="material-symbols-outlined text-lg">edit</span> Editar
+        </button>
+        <button type="button" (click)="remove(g)" class="p-2 rounded-lg border border-outline-variant hover:bg-error-container text-on-surface-variant hover:text-error" title="Eliminar">
+          <span class="material-symbols-outlined text-lg">delete</span>
+        </button>
+      </div>
+    </article>
+
+    <div *ngIf="filteredGroups.length === 0" class="col-span-full neon-panel rounded-xl p-12 text-center text-on-surface-variant">
+      <span class="material-symbols-outlined text-5xl mb-2 neon-icon-blue">groups</span>
+      <p>No hay grupos. Crea el primero con el botón "Crear Grupo".</p>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div *ngIf="showModal" class="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4" (click)="closeModal()">
+  <div class="neon-panel bg-surface-container-lowest w-full max-w-lg rounded-xl p-6 max-h-[90vh] overflow-y-auto custom-scrollbar shadow-2xl"
+       (click)="$event.stopPropagation()">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-xl font-manrope font-semibold neon-blue">
+        {{ editingId ? 'Editar grupo' : 'Nuevo grupo' }}
+      </h3>
+      <button type="button" (click)="closeModal()" class="text-on-surface-variant hover:text-on-surface">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium mb-1">Nombre del grupo</label>
+        <input [(ngModel)]="form.name" class="glass-input w-full rounded-lg px-3 py-2 text-sm outline-none" placeholder="Ej: Grupo A - Semestre 2024" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-1">Descripción (opcional)</label>
+        <textarea [(ngModel)]="form.description" rows="2"
+                  class="glass-input w-full rounded-lg px-3 py-2 text-sm outline-none resize-none"
+                  placeholder="Notas sobre el grupo..."></textarea>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-2">Estudiantes ({{ selectedStudentIds.size }} seleccionados)</label>
+        <div class="max-h-48 overflow-y-auto custom-scrollbar space-y-1 border border-outline-variant rounded-lg p-2 bg-surface-container-low">
+          <label *ngFor="let s of students"
+                 class="flex items-center gap-3 p-2 rounded-lg hover:bg-surface-container-high cursor-pointer transition-colors">
+            <input type="checkbox"
+                   [checked]="isSelected(s.id)"
+                   (change)="toggleStudent(s.id, $any($event.target).checked)"
+                   class="login-checkbox rounded" />
+            <app-user-avatar [avatarUrl]="s.avatarUrl" [fullName]="s.fullName"
+                             imgClass="w-8 h-8 rounded-full object-cover" [alt]="s.fullName" />
+            <div class="min-w-0 flex-1">
+              <p class="text-sm font-medium truncate">{{ s.fullName }}</p>
+              <p class="text-xs text-on-surface-variant truncate">{{ s.email }}</p>
+            </div>
+          </label>
+          <p *ngIf="students.length === 0" class="text-sm text-on-surface-variant text-center py-4">
+            No hay estudiantes disponibles. Regístralos desde Usuarios o desde el inicio de sesión.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-3 mt-6">
+      <button type="button" (click)="closeModal()" class="px-4 py-2 rounded-lg border border-outline-variant text-sm hover:bg-surface-container-high">Cancelar</button>
+      <button type="button" (click)="save()" [disabled]="saving"
+              class="neon-btn bg-primary text-on-primary px-5 py-2 rounded-lg text-sm font-medium hover:bg-primary-container disabled:opacity-60">
+        {{ saving ? 'Guardando...' : (editingId ? 'Guardar cambios' : 'Crear grupo') }}
+      </button>
+    </div>
+  </div>
+</div>

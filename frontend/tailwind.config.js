@@ -1,0 +1,57 @@
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: ['./src/**/*.{html,ts}'],
+  theme: {
+    extend: {
+      colors: {
+        primary: '#006474',
+        'on-primary': '#ffffff',
+        'primary-container': '#2d7d8e',
+        'on-primary-container': '#f3fcff',
+        'primary-fixed': '#a9edff',
+        'on-primary-fixed': '#001f26',
+        secondary: '#006876',
+        'on-secondary': '#ffffff',
+        'secondary-container': '#9eefff',
+        'on-secondary-container': '#046f7d',
+        'secondary-fixed': '#9eefff',
+        'on-secondary-fixed': '#001f24',
+        tertiary: '#545c5e',
+        'tertiary-fixed': '#dbe4e5',
+        'on-tertiary-fixed': '#151d1e',
+        surface: '#f8fafb',
+        'surface-container-low': '#f2f4f5',
+        'surface-container': '#eceeef',
+        'surface-container-high': '#e6e8e9',
+        'surface-container-highest': '#e1e3e4',
+        'surface-container-lowest': '#ffffff',
+        'on-surface': '#191c1d',
+        'on-surface-variant': '#3f484b',
+        'outline-variant': '#bec8cb',
+        outline: '#6f797c',
+        error: '#ba1a1a',
+        'error-container': '#ffdad6',
+        'on-error-container': '#93000a',
+        'inverse-surface': '#2e3132',
+      },
+      fontFamily: {
+        manrope: ['Manrope', 'sans-serif'],
+        inter: ['Inter', 'sans-serif'],
+      },
+      spacing: {
+        'stack-sm': '12px',
+        'stack-md': '24px',
+        'stack-lg': '40px',
+        gutter: '20px',
+      },
+      borderRadius: {
+        xl: '0.75rem',
+      },
+      fontSize: {
+        xs: ['0.875rem', { lineHeight: '1.35' }],
+        sm: ['0.9375rem', { lineHeight: '1.45' }],
+      },
+    },
+  },
+  plugins: [],
+};

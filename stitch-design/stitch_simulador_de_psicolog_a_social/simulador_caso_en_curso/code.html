@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Misión Psicosocial - Caso 1</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed": "#151d1e",
+                        "inverse-on-surface": "#eff1f2",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "surface-tint": "#086878",
+                        "on-primary": "#ffffff",
+                        "on-secondary-container": "#046f7d",
+                        "primary": "#006474",
+                        "surface-container-low": "#f2f4f5",
+                        "on-primary-fixed-variant": "#004e5b",
+                        "outline": "#6f797c",
+                        "surface-container-high": "#e6e8e9",
+                        "outline-variant": "#bec8cb",
+                        "secondary": "#006876",
+                        "on-secondary-fixed-variant": "#004e59",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed": "#001f26",
+                        "surface-dim": "#d8dadb",
+                        "tertiary-fixed": "#dbe4e5",
+                        "inverse-primary": "#87d2e4",
+                        "on-primary-container": "#f3fcff",
+                        "on-error-container": "#93000a",
+                        "secondary-container": "#9eefff",
+                        "inverse-surface": "#2e3132",
+                        "surface-container": "#eceeef",
+                        "on-secondary-fixed": "#001f24",
+                        "primary-fixed-dim": "#87d2e4",
+                        "on-surface": "#191c1d",
+                        "tertiary-container": "#6c7576",
+                        "surface": "#f8fafb",
+                        "surface-variant": "#e1e3e4",
+                        "surface-bright": "#f8fafb",
+                        "error": "#ba1a1a",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed": "#9eefff",
+                        "tertiary": "#545c5e",
+                        "on-tertiary-container": "#f3fcfd",
+                        "primary-fixed": "#a9edff",
+                        "secondary-fixed-dim": "#82d3e2",
+                        "primary-container": "#2d7d8e",
+                        "on-background": "#191c1d",
+                        "on-secondary": "#ffffff",
+                        "surface-container-highest": "#e1e3e4",
+                        "tertiary-fixed-dim": "#bfc8c9",
+                        "background": "#f8fafb",
+                        "on-surface-variant": "#3f484b",
+                        "on-tertiary-fixed-variant": "#404849"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-sm": "12px",
+                        "stack-md": "24px",
+                        "stack-lg": "40px",
+                        "gutter": "20px",
+                        "base": "8px",
+                        "container-margin": "24px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-lg": ["Manrope"],
+                        "headline-md": ["Manrope"],
+                        "body-lg": ["Inter"],
+                        "headline-lg-mobile": ["Manrope"],
+                        "display-lg": ["Manrope"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #f8fafb;
+            color: #191c1d;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #bec8cb;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full z-40 border-r border-outline-variant bg-surface-container-low dark:bg-inverse-surface w-64 flex flex-col justify-between">
+<div>
+<div class="px-6 py-8">
+<h1 class="text-headline-md font-headline-md font-bold text-primary dark:text-primary-fixed">Misión Psicosocial</h1>
+<p class="text-label-md font-label-md text-on-surface-variant">Simulador Académico</p>
+</div>
+<nav class="space-y-1">
+<a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-3 mx-2 transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-label-md font-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 bg-secondary-container text-on-secondary-container rounded-lg px-4 py-3 mx-2 scale-[0.98] transition-all duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">psychology</span>
+<span class="text-label-md font-label-md">Cases</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-3 mx-2 transition-colors" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="text-label-md font-label-md">Users</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-3 mx-2 transition-colors" href="#">
+<span class="material-symbols-outlined">assessment</span>
+<span class="text-label-md font-label-md">Reports</span>
+</a>
+</nav>
+</div>
+<div class="mb-6 space-y-1">
+<a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-3 mx-2 transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-label-md font-label-md">Settings</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg px-4 py-3 mx-2 transition-colors" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="text-label-md font-label-md">Help</span>
+</a>
+</div>
+</aside>
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 left-64 z-30 flex justify-between items-center px-6 h-16 bg-surface dark:bg-on-tertiary-fixed border-b border-outline-variant">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer">menu_open</span>
+<div class="relative">
+<span class="absolute inset-y-0 left-3 flex items-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</span>
+<input class="bg-surface-container-low border-none rounded-full pl-10 pr-4 py-1.5 text-label-md focus:ring-2 focus:ring-primary/20 w-64 transition-all" placeholder="Buscar casos..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 px-3 py-1 bg-surface-container-high rounded-full">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="text-label-sm font-label-sm text-primary uppercase tracking-wider">Estudiante</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors">notifications</span>
+<div class="flex items-center gap-3 pl-4 border-l border-outline-variant">
+<div class="text-right hidden sm:block">
+<p class="text-label-md font-label-md text-on-surface">Estudiante Prueba</p>
+<p class="text-label-sm font-label-sm text-on-surface-variant">estudiante@simulador.com</p>
+</div>
+<img alt="User Profile" class="w-8 h-8 rounded-full border border-outline-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBP5J5KXGKw5GW3gTl97UKOv4UHFQ_Wb1HvsFt8zY4e3gP_ZIxjEd9GDz6-6fFQckOgcTQBkoSgz17-SCNx9RpbkmU9EuWj1pfw5ElHzEd7gxcp3n5GU54r_Lj2WkfyHud147z9xxnSfd84bwpS4yFeCDiV4KYnY2vOQ1G2cIMfqS6ILymMIWr8LOIsVLT05SIdwA8XvaPcoEFSnipWWA7EHG3pB5cMp2RzN2ENve7mYeiFwWQqlHmpu2sz3L7QPZ_XAbLLhHEveWI"/>
+<button class="text-label-md font-label-md text-error hover:opacity-80 transition-opacity ml-2">Cerrar sesión</button>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 mt-16 p-8 min-h-[calc(100vh-140px)]">
+<!-- Breadcrumbs -->
+<nav class="flex items-center gap-2 text-label-sm font-label-sm text-on-surface-variant mb-6">
+<a class="hover:text-primary" href="#">Dashboard</a>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<a class="hover:text-primary" href="#">Casos Activos</a>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-on-surface font-bold">Caso 1</span>
+</nav>
+<!-- Focused Simulation Layout (Bento Style) -->
+<div class="grid grid-cols-12 gap-6 max-w-[1200px] mx-auto">
+<!-- Hero Card: Case Header -->
+<div class="col-span-12 bg-surface-container-lowest border border-outline-variant rounded-xl p-8 relative overflow-hidden shadow-sm">
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-32 -mt-32"></div>
+<div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+<div>
+<div class="flex flex-wrap gap-2 mb-4">
+<span class="px-3 py-1 bg-primary/10 text-primary rounded-full text-label-sm font-label-sm uppercase tracking-wide">Violencia basada en género</span>
+<span class="px-3 py-1 bg-error-container text-on-error-container rounded-full text-label-sm font-label-sm uppercase tracking-wide">Caso perdido</span>
+</div>
+<h2 class="text-headline-lg font-headline-lg text-on-surface mb-2">Caso 1: Violencia familiar y tentativa de feminicidio</h2>
+<p class="text-body-md text-on-surface-variant max-w-3xl">
+                            Simulación orientada a desafiar el juicio clínico, ético y normativo del estudiante de psicología, integrando atención en crisis, restablecimiento de derechos, violencia basada en género, riesgo de feminicidio, duelo y activación de rutas de atención.
+                        </p>
+</div>
+<div class="bg-error-container/50 border border-error/20 p-4 rounded-xl min-w-[240px]">
+<div class="flex items-center gap-2 text-error mb-2">
+<span class="material-symbols-outlined">warning</span>
+<span class="text-label-md font-label-md">Intentos Agotados</span>
+</div>
+<p class="text-label-sm font-label-sm text-on-error-container">Caso bloqueado por intentos agotados. Solicita al profesor reiniciar tus intentos para continuar con la evaluación.</p>
+</div>
+</div>
+</div>
+<!-- Left Column: Case Navigator & Metadata -->
+<div class="col-span-12 lg:col-span-4 flex flex-col gap-6">
+<!-- Competency Tags -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm">
+<h3 class="text-label-md font-label-md text-on-surface-variant mb-4 uppercase tracking-widest">Competencias a evaluar</h3>
+<div class="flex flex-wrap gap-2">
+<span class="px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-lg text-label-md font-label-md hover:bg-secondary-container hover:text-on-secondary-container transition-colors cursor-default">Lectura de contexto</span>
+<span class="px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-lg text-label-md font-label-md">Toma de decisiones bajo presión</span>
+<span class="px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-lg text-label-md font-label-md">Aplicación de normativa colombiana</span>
+<span class="px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-lg text-label-md font-label-md">Intervención ética</span>
+<span class="px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-lg text-label-md font-label-md">Primeros Auxilios Psicológicos</span>
+<span class="px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-lg text-label-md font-label-md">Valoración de riesgo</span>
+<span class="px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-lg text-label-md font-label-md">Activación de rutas institucionales</span>
+</div>
+</div>
+<!-- Simulation Stats -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm flex flex-col gap-4">
+<div class="flex justify-between items-center border-b border-outline-variant pb-4">
+<span class="text-label-md font-label-md text-on-surface-variant">Tiempo estimado</span>
+<span class="text-label-md font-label-md text-on-surface">45 min</span>
+</div>
+<div class="flex justify-between items-center border-b border-outline-variant pb-4">
+<span class="text-label-md font-label-md text-on-surface-variant">Complejidad</span>
+<div class="flex gap-1 text-primary">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">star_half</span>
+<span class="material-symbols-outlined text-[18px]">star</span>
+</div>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-label-md font-label-md text-on-surface-variant">Estado del alumno</span>
+<span class="text-label-md font-label-md text-error">No aprobado</span>
+</div>
+</div>
+</div>
+<!-- Right Column: Focus Visual & Prompt -->
+<div class="col-span-12 lg:col-span-8 space-y-6">
+<!-- Emotional Context Imagery (Placeholders) -->
+<div class="h-64 rounded-xl overflow-hidden relative border border-outline-variant">
+<img class="w-full h-full object-cover grayscale-[20%]" data-alt="A clinical psychology office setting with soft, warm lighting. The room contains a comfortable armchair and a bookshelf filled with academic texts. The atmosphere is quiet, safe, and professional, reflecting a modern light-mode design with muted teal and gray tones. A window in the background shows a blurred, peaceful garden view." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCchZK36IRMZfIHa7H0GybJx4uklkGvEk1ZusCDArfzWuXcW4BfpZgavBPxZe7PoVcIzInL7oYPbZkvbbX9U30S6rZ_AggghjAA3W0bKmhXfSArVuMXJxk3OtW3AjikEx8ax1Jn-O-pQmEteWsDaj1vpS0qFHQgmOudDhzu_3ZCxKyFhg95IbNgUJvQz0aA_gs3NCenWjsbAxYFSCozt_83vHzlW4rS4DlO6hNTp45M1D3WJefyHfSUDqDXxhBIOMiHfnfjfAIvbtg"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
+<p class="text-white text-body-md italic">"Usted llega a la unidad residencial después de un llamado de emergencia..."</p>
+</div>
+</div>
+<!-- Simulation Action Area (Disabled State) -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-8 opacity-60 pointer-events-none relative shadow-sm">
+<div class="absolute inset-0 flex flex-col items-center justify-center z-10">
+<span class="material-symbols-outlined text-[48px] text-on-surface-variant mb-2">lock</span>
+<p class="text-label-md font-label-md text-on-surface-variant">Interactividad deshabilitada</p>
+</div>
+<h3 class="text-headline-md font-headline-md text-on-surface mb-4">¿Cuál es su primera acción al ingresar?</h3>
+<div class="space-y-3">
+<div class="p-4 border border-outline-variant rounded-lg flex items-center gap-4">
+<div class="w-6 h-6 rounded-full border border-outline-variant flex-shrink-0"></div>
+<span class="text-body-md">Entrevistar por separado a los implicados de inmediato.</span>
+</div>
+<div class="p-4 border border-outline-variant rounded-lg flex items-center gap-4">
+<div class="w-6 h-6 rounded-full border border-outline-variant flex-shrink-0"></div>
+<span class="text-body-md">Asegurar el entorno y verificar integridad física de la víctima.</span>
+</div>
+<div class="p-4 border border-outline-variant rounded-lg flex items-center gap-4">
+<div class="w-6 h-6 rounded-full border border-outline-variant flex-shrink-0"></div>
+<span class="text-body-md">Llamar a la policía nacional antes de mediar.</span>
+</div>
+</div>
+<div class="mt-8 flex justify-end">
+<button class="bg-primary text-on-primary px-8 py-2.5 rounded-lg font-label-md opacity-50">Confirmar decisión</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="ml-64 p-6 flex justify-between items-center w-auto bg-surface-container-lowest dark:bg-inverse-surface border-t border-outline-variant">
+<p class="text-label-sm font-label-sm text-on-surface-variant">© 2024 Misión Psicosocial - Simulador Académico de Psicología Social</p>
+<div class="flex gap-6">
+<a class="text-label-sm font-label-sm text-on-surface-variant hover:underline" href="#">Privacy Policy</a>
+<a class="text-label-sm font-label-sm text-on-surface-variant hover:underline" href="#">Terms of Service</a>
+<a class="text-label-sm font-label-sm text-on-surface-variant hover:underline" href="#">Contact Support</a>
+</div>
+</footer>
+<script>
+        // Micro-interactions
+        document.querySelectorAll('.hover\\:scale-\\[0\\.98\\]').forEach(el => {
+            el.addEventListener('mousedown', () => el.style.transform = 'scale(0.96)');
+            el.addEventListener('mouseup', () => el.style.transform = 'scale(0.98)');
+            el.addEventListener('mouseleave', () => el.style.transform = 'scale(1)');
+        });
+    </script>
+</body></html>

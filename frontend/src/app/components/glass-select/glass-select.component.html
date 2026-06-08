@@ -1,0 +1,33 @@
+<div
+  class="glass-select"
+  [class.glass-select--open]="isOpen"
+  [class.glass-select--disabled]="disabled"
+  [class.glass-select--compact]="compact"
+>
+  <button
+    type="button"
+    class="glass-select__trigger"
+    (click)="toggle()"
+    [disabled]="disabled"
+    [attr.aria-expanded]="isOpen"
+    aria-haspopup="listbox"
+  >
+    <span class="glass-select__label">{{ selectedLabel }}</span>
+    <span class="material-symbols-outlined glass-select__chevron" [class.rotated]="isOpen">
+      expand_more
+    </span>
+  </button>
+
+  <ul *ngIf="isOpen" class="glass-select__menu glass-mirror" role="listbox">
+    <li
+      *ngFor="let opt of options"
+      role="option"
+      class="glass-select__option"
+      [class.glass-select__option--selected]="opt.value === value"
+      [attr.aria-selected]="opt.value === value"
+      (click)="select(opt)"
+    >
+      {{ opt.label }}
+    </li>
+  </ul>
+</div>

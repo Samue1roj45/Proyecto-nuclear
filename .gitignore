@@ -1,0 +1,21 @@
+# Entorno
+.env
+.env.local
+
+# Backend (Java / Maven)
+backend/target/
+backend/uploads/
+backend/.idea/
+*.iml
+
+# Frontend (Angular / Node)
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/.vscode/
+frontend/coverage/
+
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini

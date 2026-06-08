@@ -1,0 +1,177 @@
+<div class="max-w-[1280px] mx-auto p-8 space-y-6">
+  <div class="flex justify-between items-end">
+    <div>
+      <h2 class="text-3xl font-manrope font-semibold text-on-surface">Gestión de Usuarios</h2>
+      <p class="text-on-surface-variant mt-1">Crea, edita y administra estudiantes y profesores.</p>
+    </div>
+    <button (click)="openCreate()" class="bg-primary text-on-primary px-6 py-2.5 rounded-lg flex items-center gap-2 text-sm font-medium hover:bg-primary-container transition-all">
+      <span class="material-symbols-outlined text-xl">person_add</span>
+      Nuevo Usuario
+    </button>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5">
+      <p class="text-xs font-medium text-on-surface-variant uppercase mb-1">Total</p>
+      <p class="text-3xl font-manrope font-bold text-primary">{{ users.length }}</p>
+    </div>
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5">
+      <p class="text-xs font-medium text-on-surface-variant uppercase mb-1">Estudiantes</p>
+      <p class="text-3xl font-manrope font-bold text-secondary">{{ studentCount }}</p>
+    </div>
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5">
+      <p class="text-xs font-medium text-on-surface-variant uppercase mb-1">Deshabilitados</p>
+      <p class="text-3xl font-manrope font-bold text-on-surface">{{ disabledCount }}</p>
+    </div>
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 border-l-4 border-l-error">
+      <p class="text-xs font-medium text-on-surface-variant uppercase mb-1">Bloqueados</p>
+      <p class="text-3xl font-manrope font-bold text-error">{{ blockedCount }}</p>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="flex flex-wrap gap-3 items-center">
+    <div class="relative flex-1 min-w-[200px]">
+      <span class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant material-symbols-outlined text-xl">search</span>
+      <input [(ngModel)]="search" (ngModelChange)="load()" placeholder="Buscar por nombre o correo..."
+             class="w-full bg-surface-container-low border border-outline-variant rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary/30 outline-none" />
+    </div>
+    <app-glass-select [(ngModel)]="roleFilter" (ngModelChange)="load()" [options]="roleFilterOptions" [compact]="true" />
+    <app-glass-select [(ngModel)]="statusFilter" (ngModelChange)="load()" [options]="statusFilterOptions" [compact]="true" />
+  </div>
+
+  <!-- Table -->
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden" *ngIf="!loading">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left">
+        <thead>
+          <tr class="border-b border-outline-variant text-xs uppercase tracking-wider text-on-surface-variant bg-surface-container-low">
+            <th class="py-3 px-4">Usuario</th>
+            <th class="py-3 px-4">Rol</th>
+            <th class="py-3 px-4 text-center">Estado</th>
+            <th class="py-3 px-4 text-center">Intentos</th>
+            <th class="py-3 px-4 text-center">Promedio</th>
+            <th class="py-3 px-4 text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-outline-variant">
+          <tr *ngFor="let u of users" class="hover:bg-surface-container-low transition-colors">
+            <td class="py-3 px-4">
+              <div class="flex items-center gap-3">
+                <app-user-avatar [avatarUrl]="u.avatarUrl" [fullName]="u.fullName"
+                                 imgClass="w-9 h-9 rounded-full object-cover border border-outline-variant" />
+                <div>
+                  <a [routerLink]="['/users', u.id]" class="text-sm font-medium hover:text-primary">{{ u.fullName }}</a>
+                  <p class="text-xs text-on-surface-variant">{{ u.email }}</p>
+                </div>
+              </div>
+            </td>
+            <td class="py-3 px-4">
+              <button (click)="changeRole(u)"
+                      class="px-2.5 py-1 rounded-full text-xs font-semibold transition-colors"
+                      [ngClass]="u.role === 'ADMIN' ? 'bg-secondary-container text-on-secondary-container' : 'bg-surface-container-high text-primary'"
+                      title="Click para cambiar rol">
+                {{ u.role === 'ADMIN' ? 'Profesor' : 'Estudiante' }}
+              </button>
+            </td>
+            <td class="py-3 px-4 text-center">
+              <span *ngIf="u.blocked" class="inline-block px-2.5 py-1 rounded-full text-xs font-semibold bg-error-container text-on-error-container">Bloqueado</span>
+              <span *ngIf="!u.blocked && u.enabled" class="inline-block px-2.5 py-1 rounded-full text-xs font-semibold bg-secondary-container text-on-secondary-container">Activo</span>
+              <span *ngIf="!u.blocked && !u.enabled" class="inline-block px-2.5 py-1 rounded-full text-xs font-semibold bg-surface-container-high text-on-surface-variant">Inactivo</span>
+            </td>
+            <td class="py-3 px-4 text-center">
+              <input type="number" [value]="u.maxAttempts" (change)="updateMaxAttempts(u, $any($event.target).value)"
+                     class="w-16 bg-surface-container-low border border-outline-variant rounded-lg px-2 py-1 text-sm text-center outline-none focus:ring-2 focus:ring-primary/30"
+                     title="Intentos máximos" />
+              <p class="text-[10px] text-on-surface-variant mt-1">{{ u.passedAttempts }}/{{ u.totalAttempts }} aprob.</p>
+            </td>
+            <td class="py-3 px-4 text-center">
+              <span class="text-sm font-bold" [class.text-primary]="u.averageScore >= 60" [class.text-error]="u.averageScore < 60">
+                {{ u.averageScore }}%
+              </span>
+            </td>
+            <td class="py-3 px-4">
+              <div class="flex items-center justify-end gap-1">
+                <button (click)="resetAttempts(u)" title="Reiniciar todos los intentos (todos los casos)"
+                        class="p-2 rounded-lg hover:bg-surface-container-high text-on-surface-variant hover:text-primary">
+                  <span class="material-symbols-outlined text-lg">replay</span>
+                </button>
+                <button (click)="toggleEnabled(u)" [title]="u.enabled ? 'Deshabilitar' : 'Habilitar'"
+                        class="p-2 rounded-lg hover:bg-surface-container-high text-on-surface-variant"
+                        [class.hover:text-error]="u.enabled" [class.hover:text-secondary]="!u.enabled">
+                  <span class="material-symbols-outlined text-lg">{{ u.enabled ? 'block' : 'check_circle' }}</span>
+                </button>
+                <button (click)="openEdit(u)" title="Editar"
+                        class="p-2 rounded-lg hover:bg-surface-container-high text-on-surface-variant hover:text-primary">
+                  <span class="material-symbols-outlined text-lg">edit</span>
+                </button>
+                <button (click)="remove(u)" title="Eliminar"
+                        class="p-2 rounded-lg hover:bg-error-container text-on-surface-variant hover:text-error">
+                  <span class="material-symbols-outlined text-lg">delete</span>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="users.length === 0">
+            <td colspan="6" class="py-12 text-center text-on-surface-variant">No se encontraron usuarios.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="p-12 text-center text-on-surface-variant">Cargando usuarios...</div>
+</div>
+
+<!-- Modal -->
+<div *ngIf="showModal" class="fixed inset-0 z-[90] bg-black/40 flex items-center justify-center p-4" (click)="showModal = false">
+  <div class="bg-surface-container-lowest rounded-2xl shadow-2xl w-full max-w-lg p-6" (click)="$event.stopPropagation()">
+    <div class="flex justify-between items-center mb-5">
+      <h3 class="text-xl font-manrope font-semibold">{{ editingId ? 'Editar usuario' : 'Nuevo usuario' }}</h3>
+      <button (click)="showModal = false" class="text-on-surface-variant hover:text-on-surface">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <form (ngSubmit)="save()" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-on-surface-variant mb-1">Nombre completo</label>
+        <input [(ngModel)]="form.fullName" name="fullName" required
+               class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/30" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-on-surface-variant mb-1">Correo</label>
+        <input [(ngModel)]="form.email" name="email" type="email" required
+               class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/30" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-on-surface-variant mb-1">
+          {{ editingId ? 'Nueva contraseña (opcional)' : 'Contraseña' }}
+        </label>
+        <input [(ngModel)]="form.password" name="password" type="password" [required]="!editingId"
+               class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/30" />
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-on-surface-variant mb-1">Rol</label>
+          <app-glass-select [(ngModel)]="form.role" name="role" [options]="roleFormOptions" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-on-surface-variant mb-1">Intentos máximos</label>
+          <input [(ngModel)]="form.maxAttempts" name="maxAttempts" type="number" min="1"
+                 class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/30" />
+        </div>
+      </div>
+      <div class="flex justify-end gap-3 pt-2">
+        <button type="button" (click)="showModal = false"
+                class="px-5 py-2.5 rounded-lg text-sm font-medium border border-outline-variant hover:bg-surface-container-high">
+          Cancelar
+        </button>
+        <button type="submit"
+                class="bg-primary text-on-primary px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-primary-container transition-all">
+          {{ editingId ? 'Guardar' : 'Crear usuario' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

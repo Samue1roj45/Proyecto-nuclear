@@ -1,0 +1,129 @@
+<div class="p-8" *ngIf="!loading && caseDetail">
+
+  <!-- Breadcrumbs -->
+  <nav class="flex items-center gap-2 text-xs font-semibold text-on-surface-variant mb-6">
+    <a routerLink="/dashboard" class="hover:text-primary">Dashboard</a>
+    <span class="material-symbols-outlined text-sm">chevron_right</span>
+    <a routerLink="/dashboard" class="hover:text-primary">Casos</a>
+    <span class="material-symbols-outlined text-sm">chevron_right</span>
+    <span class="text-on-surface font-bold">{{ caseDetail.title }}</span>
+  </nav>
+
+  <div class="grid grid-cols-12 gap-6 max-w-[1200px] mx-auto">
+
+    <!-- Hero -->
+    <div class="col-span-12 neon-panel-hero glass-hover rounded-xl p-8 relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-32 -mt-32"></div>
+      <div class="relative z-10 flex flex-col items-center text-center gap-6">
+        <div class="max-w-3xl">
+          <div class="flex flex-wrap justify-center gap-2 mb-4">
+            <span class="px-3 py-1 neon-badge-cyan text-xs font-semibold uppercase tracking-wide">{{ caseDetail.category }}</span>
+            <span *ngIf="caseDetail.blocked" class="px-3 py-1 neon-badge-coral text-xs font-semibold uppercase tracking-wide">Bloqueado</span>
+            <span *ngIf="caseDetail.resetPending" class="px-3 py-1 neon-badge-gold text-xs font-semibold uppercase tracking-wide">Solicitud pendiente</span>
+            <span *ngIf="caseDetail.studentStatus === 'PASSED'" class="px-3 py-1 neon-badge-blue text-xs font-semibold uppercase">Aprobado</span>
+          </div>
+          <h2 class="text-3xl font-manrope font-semibold neon-heading neon-cyan mb-2">{{ caseDetail.title }}</h2>
+          <p class="text-on-surface-variant mx-auto">{{ caseDetail.description }}</p>
+        </div>
+        <div *ngIf="caseDetail.blocked && !isAdmin" class="bg-error-container/50 border border-error/20 p-4 rounded-xl min-w-[240px]">
+          <div class="flex items-center gap-2 text-error mb-2">
+            <span class="material-symbols-outlined">warning</span>
+            <span class="text-sm font-medium">Intentos Agotados</span>
+          </div>
+          <p class="text-xs text-on-error-container mb-3">
+            Caso bloqueado por intentos agotados. Solicita al profesor reiniciar tus intentos para continuar.
+          </p>
+          <button *ngIf="!caseDetail.resetPending" (click)="requestReset()" class="text-sm text-primary font-semibold hover:underline">Solicitar reinicio de intentos</button>
+          <p *ngIf="caseDetail.resetPending" class="text-xs neon-gold">Esperando aprobación del profesor.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Left column -->
+    <div class="col-span-12 lg:col-span-4 flex flex-col gap-6">
+      <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm">
+        <h3 class="text-sm font-medium text-on-surface-variant mb-4 uppercase tracking-widest">Competencias a evaluar</h3>
+        <div class="flex flex-wrap gap-2">
+          <span *ngFor="let comp of caseDetail.competencies" class="neon-pill px-4 py-2 rounded-lg text-sm">
+            {{ comp }}
+          </span>
+          <span *ngIf="caseDetail.competencies.length === 0" class="text-sm text-on-surface-variant">Sin competencias definidas.</span>
+        </div>
+      </div>
+
+      <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm flex flex-col gap-4">
+        <div class="flex justify-between items-center border-b border-outline-variant pb-4">
+          <span class="text-sm font-medium text-on-surface-variant">Tiempo estimado</span>
+          <span class="text-sm font-medium">{{ caseDetail.estimatedMinutes }} min</span>
+        </div>
+        <div class="flex justify-between items-center border-b border-outline-variant pb-4">
+          <span class="text-sm font-medium text-on-surface-variant">Complejidad</span>
+          <div class="flex gap-0.5 text-primary">
+            <span *ngFor="let i of starsArray()" class="material-symbols-outlined text-lg"
+                  [class.filled]="isFilledStar(i) || isHalfStar(i)">
+              {{ isHalfStar(i) ? 'star_half' : 'star' }}
+            </span>
+          </div>
+        </div>
+        <div class="flex justify-between items-center" *ngIf="!isAdmin">
+          <span class="text-sm font-medium text-on-surface-variant">Estado</span>
+          <span class="text-sm font-medium" [class.text-error]="caseDetail.blocked" [class.text-primary]="caseDetail.studentStatus === 'PASSED'">
+            {{ statusLabel() }}
+          </span>
+        </div>
+        <div class="flex justify-between items-center border-t border-outline-variant pt-4" *ngIf="!isAdmin">
+          <span class="text-sm font-medium text-on-surface-variant">Intentos</span>
+          <span class="text-sm font-medium">{{ caseDetail.attemptsUsed }} / {{ caseDetail.maxAttempts }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right column -->
+    <div class="col-span-12 lg:col-span-8 space-y-6">
+      <div *ngIf="!launched && caseDetail.contextQuote"
+           class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 text-center max-w-2xl mx-auto">
+        <p class="text-on-surface-variant italic leading-relaxed">"{{ caseDetail.contextQuote }}"</p>
+      </div>
+
+      <!-- Launch panel (antes de iniciar) -->
+      <div *ngIf="!launched && !(caseDetail.blocked && !isAdmin)"
+           class="neon-panel glass-hover rounded-xl p-10 text-center">
+        <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-cyan-400/30">
+          <span class="material-symbols-outlined neon-icon-cyan text-4xl">sports_esports</span>
+        </div>
+        <h3 class="text-2xl font-manrope font-semibold neon-blue mb-2">Simulador interactivo</h3>
+        <p class="text-on-surface-variant mb-6 max-w-md mx-auto">
+          Explora la escena del caso, interactúa con el entorno y toma decisiones clínicas, éticas y normativas. Pantalla completa disponible.
+        </p>
+        <button (click)="launchSimulation()"
+                class="neon-btn bg-primary text-on-primary px-8 py-3 rounded-lg font-medium hover:bg-primary-container transition-all inline-flex items-center gap-2">
+          <span class="material-symbols-outlined">play_arrow</span>
+          Iniciar simulación
+        </button>
+      </div>
+
+      <!-- Bloqueado (estudiante) -->
+      <div *ngIf="!launched && caseDetail.blocked && !isAdmin"
+           class="bg-surface-container-lowest border border-outline-variant rounded-xl p-10 shadow-sm text-center opacity-90">
+        <span class="material-symbols-outlined text-5xl text-on-surface-variant mb-3">lock</span>
+        <h3 class="text-xl font-manrope font-semibold mb-2">Simulación bloqueada</h3>
+        <p class="text-on-surface-variant mb-6">Agotaste tus intentos. Solicita un reinicio al profesor para volver a jugar.</p>
+        <button (click)="requestReset()" class="bg-primary text-on-primary px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-primary-container">
+          Solicitar reinicio
+        </button>
+      </div>
+
+      <!-- Simulador interactivo del caso -->
+      <div *ngIf="launched" class="rounded-xl border border-outline-variant overflow-hidden shadow-lg neon-panel">
+        <app-case-game
+          [caseDetail]="caseDetail"
+          [previewMode]="false"
+          (caseUpdated)="onCaseUpdated($event)"
+          (closed)="closeSimulation()"
+        />
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="loading" class="p-12 text-center text-on-surface-variant">Cargando caso...</div>

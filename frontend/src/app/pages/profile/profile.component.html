@@ -1,0 +1,124 @@
+<div class="max-w-4xl mx-auto p-8 space-y-6" *ngIf="profile">
+  <div>
+    <h2 class="text-3xl font-manrope font-semibold text-on-surface">Mi Perfil</h2>
+    <p class="text-on-surface-variant mt-1">Administra tu información personal, foto y seguridad.</p>
+  </div>
+
+  <input #fileInput type="file" accept="image/*" class="hidden" (change)="onFileSelected($event)" />
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="glass-hover bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex flex-col items-center text-center transition-all">
+      <div class="relative group cursor-pointer rounded-full transition-all" (click)="triggerFile()">
+        <img [src]="displayAvatar" (error)="onImgError($event)"
+             class="w-28 h-28 rounded-full border-2 border-primary object-cover bg-surface-container" alt="avatar" />
+        <div class="absolute inset-0 rounded-full bg-black/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+          <span class="material-symbols-outlined text-white">photo_camera</span>
+          <span class="text-white text-[10px] mt-0.5">Cambiar</span>
+        </div>
+        <div *ngIf="uploading" class="absolute inset-0 rounded-full bg-black/60 flex items-center justify-center">
+          <span class="material-symbols-outlined text-white animate-spin">progress_activity</span>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-center gap-2 mt-4">
+        <button (click)="triggerFile()" [disabled]="uploading"
+                class="bg-primary text-on-primary px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-container disabled:opacity-60 flex items-center gap-2">
+          <span class="material-symbols-outlined text-lg">upload</span>
+          {{ uploading ? 'Subiendo...' : 'Subir foto' }}
+        </button>
+        <button *ngIf="hasPhoto" (click)="removePhoto()" [disabled]="removingPhoto"
+                class="px-4 py-2 rounded-lg text-sm font-medium border border-outline-variant hover:bg-surface-container-high disabled:opacity-60">
+          {{ removingPhoto ? 'Quitando...' : 'Quitar foto' }}
+        </button>
+      </div>
+
+      <p class="text-xs text-on-surface-variant mt-3" *ngIf="!hasPhoto">
+        Sin foto personalizada. Se muestran tus iniciales.
+      </p>
+
+      <h3 class="font-manrope font-semibold text-lg mt-4">{{ profile.fullName }}</h3>
+      <p class="text-sm text-on-surface-variant">{{ profile.email }}</p>
+      <span class="glass-hover mt-3 px-3 py-1 rounded-full text-xs font-semibold transition-all"
+            [ngClass]="profile.role === 'ADMIN' ? 'bg-secondary-container text-on-secondary-container' : 'bg-surface-container-high text-primary'">
+        {{ profile.role === 'ADMIN' ? 'Profesor / Administrador' : 'Estudiante' }}
+      </span>
+    </div>
+
+    <div class="glass-hover lg:col-span-2 bg-surface-container-lowest border border-outline-variant rounded-xl p-6 transition-all">
+      <h3 class="font-manrope font-semibold text-lg mb-4">Información personal</h3>
+      <form (ngSubmit)="saveProfile()" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-on-surface-variant mb-1">Nombre completo</label>
+          <input [(ngModel)]="fullName" name="fullName"
+                 class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/30 outline-none" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-on-surface-variant mb-1">URL de foto (opcional)</label>
+          <input [(ngModel)]="avatarUrl" name="avatarUrl" placeholder="O sube una foto desde tu dispositivo"
+                 class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/30 outline-none" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-on-surface-variant mb-1">Correo</label>
+          <input [value]="profile.email" disabled
+                 class="w-full bg-surface-container border border-outline-variant rounded-lg px-4 py-2.5 text-sm text-on-surface-variant" />
+        </div>
+        <button type="submit" [disabled]="savingProfile"
+                class="bg-primary text-on-primary px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-primary-container disabled:opacity-60 transition-all">
+          {{ savingProfile ? 'Guardando...' : 'Guardar cambios' }}
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div *ngIf="profile.authProvider === 'LOCAL' || !profile.authProvider"
+       class="glass-hover bg-surface-container-lowest border border-outline-variant rounded-xl p-6 transition-all">
+    <h3 class="font-manrope font-semibold text-lg mb-4">Cambiar contraseña</h3>
+    <form (ngSubmit)="changePassword()" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-on-surface-variant mb-1">Contraseña actual</label>
+        <input type="password" [(ngModel)]="currentPassword" name="currentPassword"
+               class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/30 outline-none" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-on-surface-variant mb-1">Nueva contraseña</label>
+        <div class="relative">
+          <input [type]="showNew ? 'text' : 'password'" [(ngModel)]="newPassword" name="newPassword"
+                 class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2.5 pr-10 text-sm focus:ring-2 focus:ring-primary/30 outline-none" />
+          <button type="button" (click)="showNew = !showNew" class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant">
+            <span class="material-symbols-outlined text-lg">{{ showNew ? 'visibility_off' : 'visibility' }}</span>
+          </button>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-on-surface-variant mb-1">Confirmar contraseña</label>
+        <input type="password" [(ngModel)]="confirmPassword" name="confirmPassword"
+               class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/30 outline-none" />
+      </div>
+
+      <div class="md:col-span-3" *ngIf="newPassword">
+        <div class="flex items-center gap-3">
+          <div class="flex-1 h-2 bg-surface-container-high rounded-full overflow-hidden">
+            <div class="h-full rounded-full transition-all" [ngClass]="passwordStrength.color" [style.width.%]="passwordStrength.value"></div>
+          </div>
+          <span class="text-xs font-medium text-on-surface-variant">{{ passwordStrength.label }}</span>
+        </div>
+      </div>
+
+      <div class="md:col-span-3">
+        <button type="submit" [disabled]="changingPassword"
+                class="bg-primary text-on-primary px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-primary-container disabled:opacity-60 transition-all">
+          {{ changingPassword ? 'Actualizando...' : 'Actualizar contraseña' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div *ngIf="profile.authProvider && profile.authProvider !== 'LOCAL'"
+       class="glass-hover bg-surface-container-lowest border border-outline-variant rounded-xl p-6 transition-all">
+    <h3 class="font-manrope font-semibold text-lg mb-2">Seguridad</h3>
+    <p class="text-sm text-on-surface-variant">
+      Tu cuenta está vinculada con {{ profile.authProvider === 'GOOGLE' ? 'Google' : 'Facebook' }}.
+      La contraseña se gestiona desde ese proveedor.
+    </p>
+  </div>
+</div>

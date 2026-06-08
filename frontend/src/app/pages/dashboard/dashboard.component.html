@@ -1,0 +1,123 @@
+<div class="p-stack-lg max-w-[1280px] mx-auto space-y-stack-lg" *ngIf="!loading && dashboard">
+
+  <section class="flex flex-col gap-2 text-center items-center max-w-3xl mx-auto">
+    <h2 class="text-3xl font-manrope font-semibold neon-heading neon-blue">{{ isAdmin ? 'Casos del simulador' : 'Panel de estudiante' }}</h2>
+    <p class="text-lg text-on-surface-variant">
+      {{ isAdmin ? 'Explora los casos disponibles y abre el simulador para previsualizarlos.' : 'Recorre el caso, vive la simulación y consulta tus reportes de desempeño.' }}
+    </p>
+  </section>
+
+  <p *ngIf="message" class="text-sm bg-secondary-container text-on-secondary-container px-4 py-2 rounded-lg">{{ message }}</p>
+
+  <!-- Stats (propias del estudiante) -->
+  <section *ngIf="!isAdmin" class="grid grid-cols-1 md:grid-cols-4 gap-gutter">
+    <div class="neon-card-cyan glass-hover rounded-xl p-6 transition-all">
+      <p class="text-sm font-medium text-on-surface-variant mb-2 uppercase">Casos Disponibles</p>
+      <div class="flex items-end justify-between">
+        <span class="text-5xl font-manrope neon-stat-cyan">{{ dashboard.stats.availableCases }}</span>
+        <div class="p-2 rounded-lg">
+          <span class="material-symbols-outlined neon-icon-cyan">folder_open</span>
+        </div>
+      </div>
+    </div>
+    <div class="neon-card-blue glass-hover rounded-xl p-6 transition-all">
+      <p class="text-sm font-medium text-on-surface-variant mb-2 uppercase">Casos Aprobados</p>
+      <div class="flex items-end justify-between">
+        <span class="text-5xl font-manrope neon-stat-blue">{{ dashboard.stats.completedCases }}</span>
+        <div class="p-2 rounded-lg">
+          <span class="material-symbols-outlined neon-icon-blue">check_circle</span>
+        </div>
+      </div>
+    </div>
+    <div class="neon-card-gold glass-hover rounded-xl p-6 transition-all">
+      <p class="text-sm font-medium text-on-surface-variant mb-2 uppercase">Mejor Puntaje</p>
+      <div class="flex items-end justify-between">
+        <span class="text-5xl font-manrope neon-stat-gold">{{ dashboard.stats.bestScore }}%</span>
+        <div class="p-2 rounded-lg">
+          <span class="material-symbols-outlined neon-icon-cyan">military_tech</span>
+        </div>
+      </div>
+    </div>
+    <div class="glass-hover rounded-xl p-6 transition-all"
+         [class.neon-card-coral]="dashboard.stats.blockedCases > 0"
+         [class.neon-card-cyan]="dashboard.stats.blockedCases === 0">
+      <p class="text-sm font-medium text-on-surface-variant mb-2 uppercase">Intentos Realizados</p>
+      <div class="flex items-end justify-between">
+        <span class="text-5xl font-manrope" [class.neon-stat-coral]="dashboard.stats.blockedCases > 0" [class.neon-stat-cyan]="dashboard.stats.blockedCases === 0">{{ dashboard.stats.attemptsUsed }}</span>
+        <div class="p-2 rounded-lg" *ngIf="dashboard.stats.blockedCases > 0">
+          <span class="material-symbols-outlined neon-icon-coral">block</span>
+        </div>
+        <div class="p-2 rounded-lg" *ngIf="dashboard.stats.blockedCases === 0">
+          <span class="material-symbols-outlined neon-icon-cyan">history</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cases -->
+  <section class="space-y-gutter">
+    <div class="flex flex-col items-center gap-3 text-center">
+      <h3 class="text-2xl font-manrope font-semibold text-on-surface">Casos Disponibles</h3>
+      <span class="px-4 py-1 neon-badge-cyan text-xs font-semibold">
+        Actualizados recientemente
+      </span>
+    </div>
+
+    <article
+      *ngFor="let caseItem of dashboard.cases"
+      class="group glass-hover bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden max-w-3xl mx-auto transition-all"
+    >
+      <div class="p-8 flex flex-col items-center text-center">
+        <div class="flex flex-wrap items-center justify-center gap-3 mb-4">
+          <span class="neon-badge-cyan px-3 py-1 text-xs font-semibold">{{ caseItem.level }}</span>
+          <span class="neon-badge-blue px-3 py-1 text-xs font-semibold">{{ caseItem.category }}</span>
+          <span class="neon-badge-blue px-3 py-1 text-xs font-semibold">{{ statusLabel(caseItem.studentStatus) }}</span>
+        </div>
+
+        <h4 class="text-2xl font-manrope font-semibold neon-heading neon-cyan mb-4 cursor-pointer" (click)="openCase(caseItem)">
+          {{ caseItem.title }}
+        </h4>
+        <p class="text-on-surface-variant mb-6 leading-relaxed max-w-2xl">{{ caseItem.description }}</p>
+
+        <div class="flex flex-wrap justify-center gap-2 mb-8">
+          <span *ngFor="let comp of caseItem.competencies" class="neon-pill px-3 py-1 rounded-lg text-xs">
+            {{ comp }}
+          </span>
+        </div>
+
+        <div class="flex flex-col items-center gap-4 pt-6 border-t border-outline-variant w-full">
+          <div class="flex items-center gap-2 text-xs text-on-surface-variant">
+            <span class="material-symbols-outlined text-sm">groups</span>
+            <span>{{ caseItem.studentsEnrolled }} estudiante{{ caseItem.studentsEnrolled === 1 ? '' : 's' }} ha{{ caseItem.studentsEnrolled === 1 ? '' : 'n' }} intentado este caso</span>
+          </div>
+
+          <div class="flex flex-col items-center gap-3">
+            <div class="flex flex-col items-center gap-1" *ngIf="isLost(caseItem.studentStatus)">
+              <span class="text-xs neon-coral font-bold uppercase">{{ lostLabel(caseItem.studentStatus) }}</span>
+              <span *ngIf="caseItem.resetPending" class="neon-badge-gold px-3 py-1 text-[10px] font-semibold">Solicitud pendiente</span>
+              <span *ngIf="!caseItem.resetPending" class="text-[10px] text-on-surface-variant uppercase tracking-wider">Solicita al profesor reiniciar tus intentos</span>
+            </div>
+            <button
+              *ngIf="isLost(caseItem.studentStatus) && !caseItem.resetPending"
+              (click)="requestReset(caseItem)"
+              class="neon-btn bg-primary text-on-primary px-8 py-3 rounded-full text-sm font-medium hover:bg-primary-container transition-all active:scale-95 flex items-center justify-center gap-2"
+            >
+              Solicitar reinicio de intentos
+              <span class="material-symbols-outlined">replay</span>
+            </button>
+            <button
+              *ngIf="!isLost(caseItem.studentStatus)"
+              (click)="openCase(caseItem)"
+              class="neon-btn bg-primary text-on-primary px-8 py-3 rounded-full text-sm font-medium hover:bg-primary-container transition-all active:scale-95 flex items-center justify-center gap-2"
+            >
+              {{ caseItem.studentStatus === 'IN_PROGRESS' ? 'Continuar Caso' : 'Iniciar Caso' }}
+              <span class="material-symbols-outlined">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </article>
+  </section>
+</div>
+
+<div *ngIf="loading" class="p-12 text-center text-on-surface-variant">Cargando panel...</div>
