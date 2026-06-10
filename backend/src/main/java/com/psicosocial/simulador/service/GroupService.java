@@ -1,9 +1,11 @@
 package com.psicosocial.simulador.service;
 
 import com.psicosocial.simulador.dto.*;
+import com.psicosocial.simulador.model.CaseStudy;
 import com.psicosocial.simulador.model.StudentGroup;
 import com.psicosocial.simulador.model.User;
 import com.psicosocial.simulador.model.UserRole;
+import com.psicosocial.simulador.repository.CaseStudyRepository;
 import com.psicosocial.simulador.repository.StudentGroupRepository;
 import com.psicosocial.simulador.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,20 +23,22 @@ public class GroupService {
 
     private final StudentGroupRepository groupRepository;
     private final UserRepository userRepository;
+    private final CaseStudyRepository caseStudyRepository;
 
     private static final DateTimeFormatter FORMATTER =
             DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.forLanguageTag("es-CO"));
 
     @Transactional(readOnly = true)
     public List<GroupDto> listGroups() {
-        return groupRepository.findAllWithMembers().stream()
+        return groupRepository.findAllWithMembersAndCases().stream()
                 .map(this::toDto)
                 .toList();
     }
 
     @Transactional(readOnly = true)
     public GroupDto getGroup(Long id) {
-        return toDto(findGroupWithMembers(id));
+        return toDto(groupRepository.findByIdWithMembersAndCases(id)
+                .orElseThrow(() -> new RuntimeException("Grupo no encontrado")));
     }
 
     @Transactional
@@ -48,6 +52,7 @@ public class GroupService {
                 .name(name)
                 .description(req.getDescription() != null ? req.getDescription().trim() : "")
                 .members(resolveStudents(req.getStudentIds()))
+                .assignedCases(resolveCases(req.getCaseIds()))
                 .createdAt(LocalDateTime.now())
                 .build();
         groupRepository.save(group);
@@ -71,6 +76,9 @@ public class GroupService {
         if (req.getStudentIds() != null) {
             group.setMembers(resolveStudents(req.getStudentIds()));
         }
+        if (req.getCaseIds() != null) {
+            group.setAssignedCases(resolveCases(req.getCaseIds()));
+        }
 
         groupRepository.save(group);
         return toDto(group);
@@ -84,11 +92,6 @@ public class GroupService {
 
     private StudentGroup findGroup(Long id) {
         return groupRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Grupo no encontrado"));
-    }
-
-    private StudentGroup findGroupWithMembers(Long id) {
-        return groupRepository.findByIdWithMembers(id)
                 .orElseThrow(() -> new RuntimeException("Grupo no encontrado"));
     }
 
@@ -109,6 +112,18 @@ public class GroupService {
         return members;
     }
 
+    private Set<CaseStudy> resolveCases(List<Long> caseIds) {
+        if (caseIds == null || caseIds.isEmpty()) {
+            return new HashSet<>();
+        }
+        Set<CaseStudy> cases = new HashSet<>();
+        for (Long caseId : caseIds.stream().distinct().toList()) {
+            cases.add(caseStudyRepository.findById(caseId)
+                    .orElseThrow(() -> new RuntimeException("Caso no encontrado: " + caseId)));
+        }
+        return cases;
+    }
+
     private GroupDto toDto(StudentGroup group) {
         List<GroupMemberDto> members = group.getMembers().stream()
                 .sorted(Comparator.comparing(User::getFullName, String.CASE_INSENSITIVE_ORDER))
@@ -120,12 +135,17 @@ public class GroupService {
                         .build())
                 .collect(Collectors.toList());
 
+        List<Long> caseIds = group.getAssignedCases() != null
+                ? group.getAssignedCases().stream().map(CaseStudy::getId).sorted().toList()
+                : List.of();
+
         return GroupDto.builder()
                 .id(group.getId())
                 .name(group.getName())
                 .description(group.getDescription())
                 .memberCount(members.size())
                 .members(members)
+                .assignedCaseIds(caseIds)
                 .createdAt(group.getCreatedAt().format(FORMATTER))
                 .build();
     }

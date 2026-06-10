@@ -1,0 +1,53 @@
+<div
+  *ngIf="confirm.dialog() as d"
+  class="confirm-overlay fixed inset-0 z-[110] flex items-center justify-center p-4"
+  (click)="confirm.cancel()"
+>
+  <div
+    class="confirm-panel glass-mirror rounded-2xl w-full max-w-md p-6"
+    role="alertdialog"
+    aria-modal="true"
+    [attr.aria-labelledby]="'confirm-title'"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="flex items-start gap-4">
+      <div
+        class="confirm-panel__icon shrink-0 w-11 h-11 rounded-full flex items-center justify-center"
+        [class.confirm-panel__icon--danger]="d.variant === 'danger'"
+        [class.confirm-panel__icon--warning]="d.variant === 'warning'"
+        [class.confirm-panel__icon--default]="d.variant === 'default'"
+      >
+        <span class="material-symbols-outlined text-2xl">{{ iconFor(d.variant) }}</span>
+      </div>
+
+      <div class="flex-1 min-w-0 pt-0.5">
+        <h3 id="confirm-title" class="text-lg font-manrope font-semibold text-on-surface mb-2">
+          {{ d.title }}
+        </h3>
+        <p class="confirm-panel__message text-sm text-on-surface-variant leading-relaxed">
+          {{ d.message }}
+        </p>
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-3 mt-6">
+      <button
+        type="button"
+        (click)="confirm.cancel()"
+        class="confirm-panel__btn confirm-panel__btn--cancel px-5 py-2.5 rounded-lg text-sm font-medium"
+      >
+        {{ d.cancelLabel }}
+      </button>
+      <button
+        type="button"
+        (click)="confirm.accept()"
+        class="confirm-panel__btn px-5 py-2.5 rounded-lg text-sm font-medium"
+        [class.confirm-panel__btn--danger]="d.variant === 'danger'"
+        [class.confirm-panel__btn--warning]="d.variant === 'warning'"
+        [class.confirm-panel__btn--primary]="d.variant === 'default'"
+      >
+        {{ d.confirmLabel }}
+      </button>
+    </div>
+  </div>
+</div>

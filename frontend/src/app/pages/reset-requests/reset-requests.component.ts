@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
+import { ModalService } from '../../services/modal.service';
 import { ToastService } from '../../services/toast.service';
 import { NotificationStore } from '../../services/notification-store.service';
 import { ResetRequestSummary } from '../../models';
@@ -15,6 +16,7 @@ import { UserAvatarComponent } from '../../components/user-avatar/user-avatar.co
 export class ResetRequestsComponent implements OnInit {
   private api = inject(ApiService);
   private toast = inject(ToastService);
+  private modal = inject(ModalService);
   private store = inject(NotificationStore);
 
   requests: ResetRequestSummary[] = [];
@@ -41,7 +43,15 @@ export class ResetRequestsComponent implements OnInit {
     this.load();
   }
 
-  approve(r: ResetRequestSummary): void {
+  async approve(r: ResetRequestSummary): Promise<void> {
+    const confirmed = await this.modal.confirm({
+      title: 'Aprobar reinicio',
+      message: `¿Aprobar el reinicio de intentos de ${r.studentName} en "${r.caseTitle}"?`,
+      confirmLabel: 'Aprobar',
+      variant: 'warning',
+    });
+    if (!confirmed) return;
+
     this.api.approveReset(r.id).subscribe({
       next: (res) => {
         this.toast.success(res.message);
@@ -52,7 +62,15 @@ export class ResetRequestsComponent implements OnInit {
     });
   }
 
-  reject(r: ResetRequestSummary): void {
+  async reject(r: ResetRequestSummary): Promise<void> {
+    const confirmed = await this.modal.confirm({
+      title: 'Rechazar reinicio',
+      message: `¿Rechazar la solicitud de ${r.studentName}?`,
+      confirmLabel: 'Rechazar',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
+
     this.api.rejectReset(r.id).subscribe({
       next: (res) => {
         this.toast.success(res.message);

@@ -20,8 +20,8 @@
       <input [(ngModel)]="search" (ngModelChange)="load()" placeholder="Buscar estudiante o caso..."
              class="w-full bg-surface-container-low border border-outline-variant rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary/30 outline-none" />
     </div>
-    <app-glass-select [(ngModel)]="statusFilter" (ngModelChange)="load()" [options]="statusFilterOptions" [compact]="true" />
-    <app-glass-select [(ngModel)]="sortBy" (ngModelChange)="load()" [options]="sortOptions" [compact]="true" />
+    <app-glass-select [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()" [options]="statusFilterOptions" [compact]="true" />
+    <app-glass-select [(ngModel)]="sortBy" (ngModelChange)="onFilterChange()" [options]="sortOptions" [compact]="true" />
   </div>
 
   <div class="grid grid-cols-12 gap-gutter">
@@ -32,7 +32,12 @@
         <div class="flex justify-between items-center mb-6">
           <h3 class="text-2xl font-manrope font-semibold neon-cyan">Intentos Recientes</h3>
           <span class="text-xs px-3 py-1 bg-surface-container-high rounded-full text-on-surface-variant">
-            Mostrando {{ reports.attempts.length }} de {{ reports.attempts.length }}
+            Mostrando {{ reports.attempts.length }} de {{ reports.totalAttempts || reports.attempts.length }}
+            <span *ngIf="totalPages > 1" class="ml-2 inline-flex gap-1 items-center">
+              <button type="button" (click)="changePage(-1)" [disabled]="page === 0" class="px-2 py-0.5 rounded border border-outline-variant text-xs disabled:opacity-40">‹</button>
+              Pág. {{ page + 1 }}/{{ totalPages }}
+              <button type="button" (click)="changePage(1)" [disabled]="page >= totalPages - 1" class="px-2 py-0.5 rounded border border-outline-variant text-xs disabled:opacity-40">›</button>
+            </span>
           </span>
         </div>
 
@@ -40,7 +45,7 @@
           <table class="w-full text-left">
             <thead>
               <tr class="border-b border-outline-variant text-xs uppercase tracking-wider text-on-surface-variant">
-                <th class="pb-4 px-2">Estudiante</th>
+                <th *ngIf="isAdmin" class="pb-4 px-2">Estudiante</th>
                 <th class="pb-4 px-2">Caso</th>
                 <th class="pb-4 px-2 text-center">Intento</th>
                 <th class="pb-4 px-2">Fecha</th>
@@ -50,17 +55,20 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-outline-variant">
+              <tr *ngIf="reports.attempts.length === 0">
+                <td [attr.colspan]="isAdmin ? 7 : 6" class="py-12 text-center text-on-surface-variant">
+                  <span class="material-symbols-outlined text-4xl mb-2 block">analytics</span>
+                  No hay intentos con los filtros actuales.
+                </td>
+              </tr>
               <tr
                 *ngFor="let attempt of reports.attempts; let i = index"
                 (click)="selectAttempt(attempt)"
                 class="group glass-hover-row cursor-pointer"
                 [ngClass]="{'row-selected': selectedAttempt?.id === attempt.id}"
               >
-                <td class="py-4 px-2">
-                  <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold text-xs">EP</div>
-                    <span class="text-sm font-bold">{{ attempt.studentName }}</span>
-                  </div>
+                <td *ngIf="isAdmin" class="py-4 px-2">
+                  <span class="text-sm font-bold">{{ attempt.studentName }}</span>
                 </td>
                 <td class="py-4 px-2">
                   <span class="text-sm truncate block max-w-[150px]">{{ attempt.caseTitle }}</span>
@@ -75,8 +83,10 @@
                 <td class="py-4 px-2 text-center">
                   <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
                         [class.status-badge-passed]="attempt.status === 'PASSED'"
-                        [class.status-badge-failed]="attempt.status !== 'PASSED'">
-                    {{ attempt.status }}
+                        [class.status-badge-failed]="attempt.status === 'FAILED'"
+                        [class.status-badge-blocked]="attempt.status === 'BLOCKED'"
+                        [class.status-badge-progress]="attempt.status === 'IN_PROGRESS'">
+                    {{ statusLabel(attempt.status) }}
                   </span>
                 </td>
                 <td class="py-4 px-2 text-right">
@@ -168,7 +178,7 @@
                 <p class="text-xs text-on-surface-variant mt-0.5">Respuesta: {{ item.selectedAnswer }}</p>
               </div>
               <span class="item-category px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase">
-                {{ item.category }}
+                {{ categoryLabel(item.category) }}
               </span>
             </div>
           </div>

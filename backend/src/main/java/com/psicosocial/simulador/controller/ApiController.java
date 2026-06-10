@@ -4,12 +4,15 @@ import com.psicosocial.simulador.dto.*;
 import com.psicosocial.simulador.model.User;
 import com.psicosocial.simulador.security.CustomUserDetailsService;
 import com.psicosocial.simulador.service.DashboardService;
+import com.psicosocial.simulador.service.HelpService;
 import com.psicosocial.simulador.service.ReportsService;
 import com.psicosocial.simulador.service.SimulationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -45,7 +48,7 @@ public class ApiController {
     }
 
     @PostMapping("/cases/{id}/answer")
-    public ResponseEntity<CaseDetailDto> submitAnswer(
+    public ResponseEntity<SubmitAnswerResponse> submitAnswer(
             @PathVariable Long id,
             Authentication auth,
             @RequestBody SubmitAnswerRequest request
@@ -63,9 +66,16 @@ public class ApiController {
             Authentication auth,
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String status,
-            @RequestParam(required = false) String sort
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "20") int pageSize
     ) {
-        return ResponseEntity.ok(reportsService.getReports(currentUser(auth), search, status, sort));
+        return ResponseEntity.ok(reportsService.getReports(currentUser(auth), search, status, sort, page, pageSize));
+    }
+
+    @GetMapping("/help")
+    public ResponseEntity<List<HelpSectionDto>> help() {
+        return ResponseEntity.ok(HelpService.getSections());
     }
 
     @GetMapping("/reports/attempts/{id}")

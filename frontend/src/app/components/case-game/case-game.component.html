@@ -1,34 +1,37 @@
-<div #gameRoot class="case-game-root" [class.case-game-root--fullscreen]="isFullscreen">
-  <!-- Barra superior -->
+<div #gameRoot class="case-game-root" [class.case-game-root--fullscreen]="isFullscreen" role="application" aria-label="Simulador de caso">
   <div class="case-game-toolbar glass-mirror">
     <div class="case-game-toolbar__left">
-      <span class="material-symbols-outlined">sports_esports</span>
+      <span class="material-symbols-outlined" aria-hidden="true">sports_esports</span>
       <div>
         <p class="case-game-toolbar__title">{{ caseDetail.title }}</p>
         <p class="case-game-toolbar__sub">{{ currentScene.title }}</p>
       </div>
     </div>
     <div class="case-game-toolbar__actions">
-      <span class="case-game-badge">{{ progressLabel }}</span>
-      <button type="button" class="case-game-btn" (click)="showHud = !showHud" title="Mostrar/ocultar HUD">
-        <span class="material-symbols-outlined">{{ showHud ? 'visibility' : 'visibility_off' }}</span>
+      <span class="case-game-badge" aria-live="polite">{{ progressLabel }}</span>
+      <span *ngIf="caseDetail.timerEnabled && !previewMode" class="case-game-badge case-game-badge--timer" aria-label="Tiempo transcurrido">
+        <span class="material-symbols-outlined text-sm" aria-hidden="true">timer</span> {{ timerLabel }}
+      </span>
+      <div class="case-game-progress" role="progressbar" [attr.aria-valuenow]="progressPercent" aria-valuemin="0" aria-valuemax="100">
+        <div class="case-game-progress__fill" [style.width.%]="progressPercent"></div>
+      </div>
+      <button type="button" class="case-game-btn" (click)="showHud = !showHud" [attr.aria-label]="showHud ? 'Ocultar HUD' : 'Mostrar HUD'">
+        <span class="material-symbols-outlined" aria-hidden="true">{{ showHud ? 'visibility' : 'visibility_off' }}</span>
       </button>
-      <button type="button" class="case-game-btn" (click)="toggleFullscreen()" title="Pantalla completa">
-        <span class="material-symbols-outlined">{{ isFullscreen ? 'fullscreen_exit' : 'fullscreen' }}</span>
+      <button type="button" class="case-game-btn" (click)="toggleFullscreen()" aria-label="Pantalla completa">
+        <span class="material-symbols-outlined" aria-hidden="true">{{ isFullscreen ? 'fullscreen_exit' : 'fullscreen' }}</span>
       </button>
-      <button type="button" class="case-game-btn case-game-btn--exit" (click)="exitGame()">
-        <span class="material-symbols-outlined">close</span> Salir
+      <button type="button" class="case-game-btn case-game-btn--exit" (click)="exitGame()" aria-label="Salir del simulador">
+        <span class="material-symbols-outlined" aria-hidden="true">close</span> Salir
       </button>
     </div>
   </div>
 
-  <!-- Canvas -->
   <div class="case-game-stage">
-    <canvas #canvas [width]="width" [height]="height" class="case-game-canvas"></canvas>
+    <canvas #canvas [width]="width" [height]="height" class="case-game-canvas" aria-label="Escena del simulador"></canvas>
 
-    <!-- Intro -->
     <div *ngIf="gamePhase === 'intro'" class="case-game-overlay glass-mirror">
-      <span class="material-symbols-outlined case-game-overlay__icon">emergency</span>
+      <span class="material-symbols-outlined case-game-overlay__icon" aria-hidden="true">emergency</span>
       <h3>Simulador inmersivo</h3>
       <p class="case-game-quote" *ngIf="caseDetail.contextQuote">"{{ caseDetail.contextQuote }}"</p>
       <p class="case-game-hint">Explora la escena y responde cada decisión. Se aprueba con {{ passThreshold }}% o más.</p>
@@ -37,48 +40,51 @@
         <span><kbd>E</kbd> responder</span>
         <span><kbd>F</kbd> pantalla completa</span>
       </div>
+      <p *ngIf="previewMode" class="case-game-preview-badge">Modo vista previa — sin guardar puntaje</p>
       <button type="button" class="case-game-primary" (click)="startGame()">
-        <span class="material-symbols-outlined">play_arrow</span> Entrar a la escena
+        <span class="material-symbols-outlined" aria-hidden="true">play_arrow</span> Entrar a la escena
       </button>
     </div>
 
-    <!-- HUD -->
     <div *ngIf="showHud && gamePhase === 'playing'" class="case-game-hud glass-mirror">
       <p class="case-game-hud__title">{{ currentScene.subtitle }}</p>
       <p class="case-game-hud__hint">{{ currentScene.hint }}</p>
-      <p *ngIf="moveHint" class="case-game-hud__tip">Usa WASD o flechas para desplazarte</p>
-      <button type="button" class="case-game-respond-btn" (click)="openDecision()">
-        <span class="material-symbols-outlined">psychology</span>
-        Responder decisión
+      <p *ngIf="moveHint" class="case-game-hud__tip">Usa WASD, flechas o los botones táctiles</p>
+      <button type="button" class="case-game-respond-btn" (click)="openDecision()" aria-label="Abrir decisión">
+        <span class="material-symbols-outlined" aria-hidden="true">psychology</span> Responder decisión
       </button>
     </div>
 
-    <!-- Transición entre escenas -->
+    <!-- Controles móviles -->
+    <div *ngIf="gamePhase === 'playing'" class="case-game-mobile-controls" aria-label="Controles de movimiento">
+      <button type="button" (click)="move('up')" aria-label="Arriba"><span class="material-symbols-outlined">keyboard_arrow_up</span></button>
+      <div class="case-game-mobile-controls__row">
+        <button type="button" (click)="move('left')" aria-label="Izquierda"><span class="material-symbols-outlined">keyboard_arrow_left</span></button>
+        <button type="button" (click)="openDecision()" aria-label="Responder" class="case-game-mobile-respond"><span class="material-symbols-outlined">psychology</span></button>
+        <button type="button" (click)="move('right')" aria-label="Derecha"><span class="material-symbols-outlined">keyboard_arrow_right</span></button>
+      </div>
+      <button type="button" (click)="move('down')" aria-label="Abajo"><span class="material-symbols-outlined">keyboard_arrow_down</span></button>
+    </div>
+
     <div *ngIf="gamePhase === 'transition'" class="case-game-overlay case-game-overlay--dim glass-mirror">
-      <span class="material-symbols-outlined animate-spin">progress_activity</span>
+      <span class="material-symbols-outlined animate-spin" aria-hidden="true">progress_activity</span>
       <p>Cargando siguiente escena...</p>
     </div>
 
-    <!-- Decisión -->
-    <div *ngIf="gamePhase === 'decision' && currentQuestion" class="case-game-decision glass-mirror">
+    <div *ngIf="gamePhase === 'decision' && currentQuestion" class="case-game-decision glass-mirror" role="dialog" aria-modal="true" aria-labelledby="decision-title">
       <div class="case-game-decision__header">
-        <span class="material-symbols-outlined">psychology</span>
+        <span class="material-symbols-outlined" aria-hidden="true">psychology</span>
         <div class="case-game-decision__head-text">
           <p class="case-game-decision__phase">{{ progressLabel }}</p>
-          <h4>{{ currentQuestion.text }}</h4>
+          <h4 id="decision-title">{{ currentQuestion.text }}</h4>
         </div>
-        <button type="button" class="case-game-decision__close" (click)="closeDecision()" [disabled]="submitting" title="Volver a la escena">
+        <button type="button" class="case-game-decision__close" (click)="closeDecision()" [disabled]="submitting" aria-label="Cerrar">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
       <div *ngIf="sortedOptions.length; else noOptions" class="case-game-decision__options">
-        <button
-          *ngFor="let opt of sortedOptions; let i = index"
-          type="button"
-          class="case-game-option glass-hover"
-          [disabled]="submitting"
-          (click)="previewMode ? selectPreviewOption() : selectOption(opt.id)"
-        >
+        <button *ngFor="let opt of sortedOptions; let i = index" type="button" class="case-game-option glass-hover"
+                [disabled]="submitting" (click)="previewMode ? selectPreviewOption() : selectOption(opt.id)">
           <span class="case-game-option__index">{{ i + 1 }}</span>
           <span class="case-game-option__text">{{ opt.text }}</span>
         </button>
@@ -87,18 +93,45 @@
         <p class="case-game-decision__empty">Esta pregunta no tiene opciones. Contacta al profesor.</p>
       </ng-template>
       <p *ngIf="submitting" class="case-game-decision__loading">Registrando decisión...</p>
-      <p *ngIf="previewMode" class="case-game-decision__preview">Modo vista previa (sin guardar puntaje)</p>
     </div>
 
-    <!-- Resultado final -->
-    <div *ngIf="gamePhase === 'finished'" class="case-game-overlay glass-mirror">
-      <span class="material-symbols-outlined case-game-overlay__icon" [class.text-pass]="resultPassed">
+    <!-- Feedback inmediato -->
+    <div *ngIf="gamePhase === 'feedback' && lastFeedback" class="case-game-overlay glass-mirror case-game-feedback" role="alert">
+      <span class="material-symbols-outlined case-game-overlay__icon" [class.text-pass]="lastFeedback.correct" [class.text-fail]="!lastFeedback.correct" aria-hidden="true">
+        {{ lastFeedback.correct ? 'check_circle' : 'cancel' }}
+      </span>
+      <h3>{{ lastFeedback.correct ? '¡Correcto!' : 'Incorrecto' }}</h3>
+      <span class="case-game-feedback__category">{{ categoryLabel }}</span>
+      <p>{{ lastFeedback.message }}</p>
+      <p *ngIf="!lastFeedback.correct && lastFeedback.correctAnswerText" class="case-game-feedback__correct">
+        Respuesta recomendada: <strong>{{ lastFeedback.correctAnswerText }}</strong>
+      </p>
+      <button type="button" class="case-game-primary" (click)="continueAfterFeedback()">Continuar</button>
+    </div>
+
+    <!-- Resultado final con puntajes -->
+    <div *ngIf="gamePhase === 'finished'" class="case-game-overlay glass-mirror case-game-results" role="status">
+      <span class="material-symbols-outlined case-game-overlay__icon" [class.text-pass]="resultPassed" aria-hidden="true">
         {{ resultPassed ? 'emoji_events' : 'flag' }}
       </span>
       <h3>{{ resultPassed ? '¡Caso completado!' : 'Simulación finalizada' }}</h3>
       <p>{{ resultMessage }}</p>
+
+      <div *ngIf="attemptResult" class="case-game-scores">
+        <div class="case-game-score-ring">
+          <span class="case-game-score-ring__value">{{ attemptResult.totalScore }}%</span>
+          <span class="case-game-score-ring__label">Total</span>
+        </div>
+        <div class="case-game-score-bars">
+          <div class="case-game-score-bar"><span>Clínica</span><div class="bar"><div [style.width.%]="attemptResult.clinicalScore"></div></div><span>{{ attemptResult.clinicalScore }}%</span></div>
+          <div class="case-game-score-bar"><span>Ética</span><div class="bar"><div [style.width.%]="attemptResult.ethicalScore"></div></div><span>{{ attemptResult.ethicalScore }}%</span></div>
+          <div class="case-game-score-bar"><span>Normativa</span><div class="bar"><div [style.width.%]="attemptResult.normativeScore"></div></div><span>{{ attemptResult.normativeScore }}%</span></div>
+        </div>
+      </div>
+
       <div class="case-game-finished-actions">
-        <button type="button" class="case-game-primary" (click)="exitGame()">Volver al caso</button>
+        <a *ngIf="attemptResult" routerLink="/reports" class="case-game-primary case-game-link-btn">Ver reporte completo</a>
+        <button type="button" class="case-game-secondary" (click)="exitGame()">Volver al caso</button>
       </div>
     </div>
   </div>

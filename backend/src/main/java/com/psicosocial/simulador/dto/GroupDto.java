@@ -13,5 +13,6 @@ public class GroupDto {
     private String description;
     private int memberCount;
     private List<GroupMemberDto> members;
+    private List<Long> assignedCaseIds;
     private String createdAt;
 }

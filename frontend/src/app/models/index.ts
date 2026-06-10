@@ -7,6 +7,38 @@ export interface AuthUser {
   avatarUrl: string;
 }
 
+import type { AccessCodeStatus } from './access-flow';
+
+export type {
+  LoginStep,
+  LoginStepResponse,
+  AccessCodeStatus,
+  AccessStatusResponse,
+  AccessFlowState,
+} from './access-flow';
+
+export interface AccessRequestSummary {
+  id: number;
+  studentId: number;
+  studentName: string;
+  studentEmail: string;
+  studentAvatar: string;
+  status: AccessCodeStatus;
+  requestedAt: string;
+  timeAgo: string;
+  approvedByName: string | null;
+  approvedAt: string | null;
+  expiresAt: string | null;
+}
+
+export interface ApproveAccessResponse {
+  message: string;
+  code: string | null;
+  expiresAt: string;
+  emailSent: boolean;
+  expiresInMinutes: number;
+}
+
 export interface DashboardStats {
   totalStudents: number;
   enabledStudents: number;
@@ -56,7 +88,66 @@ export interface Question {
   text: string;
   orderIndex: number;
   sceneImageUrl: string;
+  sceneTitle?: string;
+  sceneSubtitle?: string;
+  sceneHint?: string;
+  npcLabel?: string;
   options: AnswerOption[];
+}
+
+export interface AnswerFeedback {
+  correct: boolean;
+  message: string;
+  category: string;
+  correctAnswerText: string | null;
+}
+
+export interface AttemptResult {
+  passed: boolean;
+  totalScore: number;
+  clinicalScore: number;
+  ethicalScore: number;
+  normativeScore: number;
+  attemptId: number;
+}
+
+export interface SubmitAnswerResponse {
+  caseDetail: CaseDetail;
+  feedback: AnswerFeedback;
+  result: AttemptResult | null;
+}
+
+export interface QuestionAdmin {
+  id: number;
+  text: string;
+  orderIndex: number;
+  sceneImageUrl: string;
+  sceneTitle: string;
+  sceneSubtitle: string;
+  sceneHint: string;
+  npcLabel: string;
+  options: QuestionOptionAdmin[];
+}
+
+export interface QuestionOptionAdmin {
+  id?: number;
+  text: string;
+  correct: boolean;
+  category: string;
+  feedback: string;
+  orderIndex: number;
+}
+
+export interface HelpItem {
+  question: string;
+  answer: string;
+}
+
+export interface HelpSection {
+  id: string;
+  title: string;
+  icon: string;
+  items: HelpItem[];
 }
 
 export interface CaseDetail {
@@ -79,6 +170,9 @@ export interface CaseDetail {
   currentQuestionIndex: number;
   totalQuestions: number;
   currentQuestion: Question | null;
+  timerEnabled?: boolean;
+  elapsedSeconds?: number;
+  passThreshold?: number;
 }
 
 export interface AttemptSummary {
@@ -103,6 +197,9 @@ export interface ReportsSummary {
   avgClinical: number;
   avgNormative: number;
   attempts: AttemptSummary[];
+  totalAttempts?: number;
+  page?: number;
+  pageSize?: number;
 }
 
 export type AuthProvider = 'LOCAL' | 'GOOGLE' | 'FACEBOOK';
@@ -138,7 +235,10 @@ export type NotificationType =
   | 'RESET_REQUEST'
   | 'RESET_APPROVED'
   | 'CASE_COMPLETED'
-  | 'ACCOUNT';
+  | 'ACCOUNT'
+  | 'ACCESS_REQUEST'
+  | 'ACCESS_APPROVED'
+  | 'ACCESS_REJECTED';
 
 export interface AppNotification {
   id: number;
@@ -227,6 +327,7 @@ export interface CaseAdmin {
   competencies: string[];
   questionCount: number;
   attemptsCount: number;
+  timerEnabled?: boolean;
 }
 
 export interface CaseFormRequest {
@@ -239,6 +340,7 @@ export interface CaseFormRequest {
   estimatedMinutes: number;
   complexityStars: number;
   competencies: string[];
+  timerEnabled?: boolean;
 }
 
 export interface GroupMember {
@@ -254,6 +356,7 @@ export interface StudentGroup {
   description: string;
   memberCount: number;
   members: GroupMember[];
+  assignedCaseIds?: number[];
   createdAt: string;
 }
 
@@ -261,4 +364,15 @@ export interface CreateGroupRequest {
   name: string;
   description?: string;
   studentIds?: number[];
+  caseIds?: number[];
+}
+
+export interface QuestionFormRequest {
+  text: string;
+  sceneImageUrl?: string;
+  sceneTitle?: string;
+  sceneSubtitle?: string;
+  sceneHint?: string;
+  npcLabel?: string;
+  options: { text: string; correct: boolean; category: string; feedback?: string }[];
 }

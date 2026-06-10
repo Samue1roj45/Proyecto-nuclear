@@ -6,7 +6,6 @@ import com.psicosocial.simulador.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -17,13 +16,17 @@ public class DashboardService {
     private final CaseStudyRepository caseStudyRepository;
     private final AttemptRepository attemptRepository;
     private final ResetRequestRepository resetRequestRepository;
+    private final CaseAccessService caseAccessService;
 
     public StudentDashboardDto getStudentDashboard(User user, String search) {
         List<CaseStudy> cases = search == null || search.isBlank()
                 ? caseStudyRepository.findAll()
                 : caseStudyRepository.findByTitleContainingIgnoreCaseOrCategoryContainingIgnoreCase(search, search);
 
-        List<CaseCardDto> cards = cases.stream().map(c -> toCaseCard(c, user)).toList();
+        List<CaseCardDto> cards = cases.stream()
+                .filter(c -> caseAccessService.isCaseVisibleToStudent(c, user))
+                .map(c -> toCaseCard(c, user))
+                .toList();
 
         return StudentDashboardDto.builder()
                 .stats(buildStudentStats(user, cards))

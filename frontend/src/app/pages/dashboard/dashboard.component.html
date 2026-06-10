@@ -38,26 +38,22 @@
         </div>
       </div>
     </div>
-    <div class="glass-hover rounded-xl p-6 transition-all"
-         [class.neon-card-coral]="dashboard.stats.blockedCases > 0"
-         [class.neon-card-cyan]="dashboard.stats.blockedCases === 0">
-      <p class="text-sm font-medium text-on-surface-variant mb-2 uppercase">Intentos Realizados</p>
+    <div class="neon-card-gold glass-hover rounded-xl p-6 transition-all">
+      <p class="text-sm font-medium text-on-surface-variant mb-2 uppercase">Promedio General</p>
       <div class="flex items-end justify-between">
-        <span class="text-5xl font-manrope" [class.neon-stat-coral]="dashboard.stats.blockedCases > 0" [class.neon-stat-cyan]="dashboard.stats.blockedCases === 0">{{ dashboard.stats.attemptsUsed }}</span>
-        <div class="p-2 rounded-lg" *ngIf="dashboard.stats.blockedCases > 0">
-          <span class="material-symbols-outlined neon-icon-coral">block</span>
-        </div>
-        <div class="p-2 rounded-lg" *ngIf="dashboard.stats.blockedCases === 0">
-          <span class="material-symbols-outlined neon-icon-cyan">history</span>
+        <span class="text-5xl font-manrope neon-stat-gold">{{ dashboard.stats.averageScore }}%</span>
+        <div class="p-2 rounded-lg">
+          <span class="material-symbols-outlined neon-icon-cyan">trending_up</span>
         </div>
       </div>
+      <p class="text-xs text-on-surface-variant mt-2">{{ dashboard.stats.attemptsUsed }} intentos · {{ dashboard.stats.inProgressCases }} en curso</p>
     </div>
   </section>
 
   <!-- Cases -->
   <section class="space-y-gutter">
     <div class="flex flex-col items-center gap-3 text-center">
-      <h3 class="text-2xl font-manrope font-semibold text-on-surface">Casos Disponibles</h3>
+      <h3 class="text-2xl font-manrope font-semibold text-on-surface">Mis casos</h3>
       <span class="px-4 py-1 neon-badge-cyan text-xs font-semibold">
         Actualizados recientemente
       </span>
@@ -105,8 +101,11 @@
               Solicitar reinicio de intentos
               <span class="material-symbols-outlined">replay</span>
             </button>
+            <span *ngIf="caseItem.studentStatus === 'PASSED'" class="neon-badge-cyan px-6 py-3 rounded-full text-sm font-semibold flex items-center gap-2">
+              <span class="material-symbols-outlined">emoji_events</span> Aprobado
+            </span>
             <button
-              *ngIf="!isLost(caseItem.studentStatus)"
+              *ngIf="!isLost(caseItem.studentStatus) && caseItem.studentStatus !== 'PASSED'"
               (click)="openCase(caseItem)"
               class="neon-btn bg-primary text-on-primary px-8 py-3 rounded-full text-sm font-medium hover:bg-primary-container transition-all active:scale-95 flex items-center justify-center gap-2"
             >
@@ -117,6 +116,11 @@
         </div>
       </div>
     </article>
+
+    <div *ngIf="dashboard.cases.length === 0" class="neon-panel rounded-xl p-12 text-center text-on-surface-variant col-span-full">
+      <span class="material-symbols-outlined text-5xl mb-2">folder_off</span>
+      <p>No tienes casos asignados. Contacta a tu docente para que te incluya en un grupo.</p>
+    </div>
   </section>
 </div>
 

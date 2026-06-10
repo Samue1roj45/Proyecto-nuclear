@@ -38,6 +38,9 @@ public class CaseStudy {
 
     private double complexityStars;
 
+    @Builder.Default
+    private boolean timerEnabled = false;
+
     @ElementCollection
     @CollectionTable(name = "case_competencies", joinColumns = @JoinColumn(name = "case_id"))
     @Column(name = "competency")

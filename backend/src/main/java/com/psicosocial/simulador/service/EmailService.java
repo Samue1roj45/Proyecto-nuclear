@@ -24,6 +24,40 @@ public class EmailService {
         return mailSender != null && from != null && !from.isBlank();
     }
 
+    public void sendAccessCode(String toEmail, String fullName, String code, int expirationMinutes) {
+        if (!isConfigured()) {
+            throw new RuntimeException(
+                    "El envío de correos no está configurado. Configura MAIL_HOST, MAIL_USERNAME, MAIL_PASSWORD y MAIL_FROM en el backend."
+            );
+        }
+
+        String subject = "Código de acceso — Misión Psicosocial";
+        String body = """
+                Hola %s,
+
+                Tu solicitud de ingreso al simulador fue aprobada por el docente.
+
+                Tu código de acceso es: %s
+
+                Este código es válido durante %d minutos y solo puede usarse una vez.
+
+                — Equipo Misión Psicosocial
+                """.formatted(fullName, code, expirationMinutes);
+
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom("%s <%s>".formatted(fromName, from));
+            message.setTo(toEmail);
+            message.setSubject(subject);
+            message.setText(body);
+            mailSender.send(message);
+            log.info("Código de acceso enviado a {}", toEmail);
+        } catch (Exception ex) {
+            log.error("Error enviando correo a {}", toEmail, ex);
+            throw new RuntimeException("No se pudo enviar el correo. Verifica la configuración SMTP.");
+        }
+    }
+
     public void sendPasswordResetCode(String toEmail, String fullName, String code) {
         if (!isConfigured()) {
             throw new RuntimeException(

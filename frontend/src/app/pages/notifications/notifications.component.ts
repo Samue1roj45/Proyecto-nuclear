@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { NotificationStore } from '../../services/notification-store.service';
+import { ConfirmDialogService } from '../../services/confirm-dialog.service';
 import { ToastService } from '../../services/toast.service';
 import { AppNotification } from '../../models';
 
@@ -16,6 +17,7 @@ export class NotificationsComponent implements OnInit {
   private api = inject(ApiService);
   private router = inject(Router);
   private toast = inject(ToastService);
+  private confirmDialog = inject(ConfirmDialogService);
   store = inject(NotificationStore);
 
   notifications: AppNotification[] = [];
@@ -71,7 +73,14 @@ export class NotificationsComponent implements OnInit {
     });
   }
 
-  clearAll(): void {
+  async clearAll(): Promise<void> {
+    const confirmed = await this.confirmDialog.confirm({
+      title: 'Limpiar notificaciones',
+      message: '¿Eliminar todas tus notificaciones? Esta acción no se puede deshacer.',
+      confirmLabel: 'Eliminar todas',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
     this.api.clearNotifications().subscribe({
       next: () => {
         this.toast.success('Notificaciones eliminadas');
@@ -88,6 +97,9 @@ export class NotificationsComponent implements OnInit {
       WARNING: 'warning',
       ERROR: 'error',
       RESET_REQUEST: 'restart_alt',
+      ACCESS_REQUEST: 'how_to_reg',
+      ACCESS_APPROVED: 'verified_user',
+      ACCESS_REJECTED: 'person_off',
       RESET_APPROVED: 'task_alt',
       CASE_COMPLETED: 'emoji_events',
       ACCOUNT: 'person',

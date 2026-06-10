@@ -85,8 +85,21 @@
         <p class="text-on-surface-variant italic leading-relaxed">"{{ caseDetail.contextQuote }}"</p>
       </div>
 
+      <!-- Aprobado -->
+      <div *ngIf="!launched && caseDetail.studentStatus === 'PASSED' && !isAdmin && !previewMode"
+           class="neon-panel glass-hover rounded-xl p-10 text-center">
+        <span class="material-symbols-outlined text-5xl text-primary mb-3">emoji_events</span>
+        <h3 class="text-xl font-manrope font-semibold mb-2">¡Caso aprobado!</h3>
+        <p class="text-on-surface-variant mb-6">Ya completaste este caso exitosamente. Si necesitas practicar de nuevo, solicita reinicio al profesor.</p>
+        <button *ngIf="!caseDetail.resetPending" (click)="requestReset()"
+                class="bg-primary text-on-primary px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-primary-container">
+          Solicitar reinicio
+        </button>
+        <p *ngIf="caseDetail.resetPending" class="text-sm text-on-surface-variant">Solicitud de reinicio pendiente.</p>
+      </div>
+
       <!-- Launch panel (antes de iniciar) -->
-      <div *ngIf="!launched && !(caseDetail.blocked && !isAdmin)"
+      <div *ngIf="!launched && canLaunch()"
            class="neon-panel glass-hover rounded-xl p-10 text-center">
         <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-cyan-400/30">
           <span class="material-symbols-outlined neon-icon-cyan text-4xl">sports_esports</span>
@@ -117,7 +130,8 @@
       <div *ngIf="launched" class="rounded-xl border border-outline-variant overflow-hidden shadow-lg neon-panel">
         <app-case-game
           [caseDetail]="caseDetail"
-          [previewMode]="false"
+          [previewMode]="previewMode && isAdmin"
+          [previewQuestions]="previewQuestions"
           (caseUpdated)="onCaseUpdated($event)"
           (closed)="closeSimulation()"
         />
@@ -127,3 +141,8 @@
 </div>
 
 <div *ngIf="loading" class="p-12 text-center text-on-surface-variant">Cargando caso...</div>
+<div *ngIf="!loading && loadError" class="p-12 text-center max-w-md mx-auto">
+  <span class="material-symbols-outlined text-5xl text-on-surface-variant mb-3">error</span>
+  <p class="text-on-surface-variant mb-4">{{ loadError }}</p>
+  <a routerLink="/dashboard" class="text-primary hover:underline text-sm">Volver al panel</a>
+</div>

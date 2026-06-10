@@ -5,14 +5,13 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { AuthTransitionService } from '../../services/auth-transition.service';
 import { NotificationStore } from '../../services/notification-store.service';
-import { ToastComponent } from '../../components/toast/toast.component';
 import { UserAvatarComponent } from '../../components/user-avatar/user-avatar.component';
 import { AppNotification } from '../../models';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, FormsModule, ToastComponent, UserAvatarComponent],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, FormsModule, UserAvatarComponent],
   templateUrl: './main-layout.component.html',
 })
 export class MainLayoutComponent implements OnInit, OnDestroy {
@@ -43,6 +42,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     if (url.startsWith('/users')) return 'Buscar usuarios...';
     if (url.startsWith('/groups')) return 'Buscar grupos...';
     if (url.startsWith('/manage-cases')) return 'Buscar casos...';
+    if (url.startsWith('/access-requests')) return 'Buscar solicitudes de acceso...';
     if (url.startsWith('/reset-requests')) return 'Buscar solicitudes...';
     if (url.startsWith('/admin')) return 'Ir a usuarios para buscar...';
     return 'Buscar casos...';
@@ -107,6 +107,9 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
       WARNING: 'warning',
       ERROR: 'error',
       RESET_REQUEST: 'restart_alt',
+      ACCESS_REQUEST: 'how_to_reg',
+      ACCESS_APPROVED: 'verified_user',
+      ACCESS_REJECTED: 'person_off',
       RESET_APPROVED: 'task_alt',
       CASE_COMPLETED: 'emoji_events',
       ACCOUNT: 'person',

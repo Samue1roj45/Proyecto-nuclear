@@ -31,4 +31,7 @@ public class AnswerOption {
     private ScoreCategory category;
 
     private double weight;
+
+    @Column(length = 1000)
+    private String feedback;
 }

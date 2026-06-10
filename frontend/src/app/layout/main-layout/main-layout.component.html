@@ -62,6 +62,12 @@
         <span class="text-sm font-medium">Reportes</span>
       </a>
 
+      <a *ngIf="isAdmin" routerLink="/access-requests" routerLinkActive="glass-nav-active text-on-secondary-container"
+         class="glass-nav-item flex items-center gap-3 text-on-surface rounded-lg px-4 py-3 transition-all">
+        <span class="material-symbols-outlined">how_to_reg</span>
+        <span class="text-sm font-medium">Solicitudes de acceso</span>
+      </a>
+
       <a *ngIf="isAdmin" routerLink="/reset-requests" routerLinkActive="glass-nav-active text-on-secondary-container"
          class="glass-nav-item flex items-center gap-3 text-on-surface rounded-lg px-4 py-3 transition-all">
         <span class="material-symbols-outlined">replay</span>
@@ -84,11 +90,11 @@
         <span class="material-symbols-outlined">person</span>
         <span class="text-sm font-medium">Mi Perfil</span>
       </a>
-      <span class="glass-nav-item flex items-center gap-3 text-on-surface-variant rounded-lg px-4 py-2 opacity-60 cursor-default"
-            title="Próximamente">
+      <a routerLink="/help" routerLinkActive="glass-nav-active text-on-secondary-container"
+         class="glass-nav-item flex items-center gap-3 text-on-surface rounded-lg px-4 py-2 transition-colors">
         <span class="material-symbols-outlined">help</span>
         <span class="text-sm font-medium">Ayuda</span>
-      </span>
+      </a>
     </div>
   </aside>
 
@@ -202,11 +208,10 @@
       <p class="text-xs opacity-90">© 2026 Misión Psicosocial - Simulador Académico de Psicología Social</p>
     </div>
     <div class="flex gap-6">
-      <span class="text-xs opacity-60 cursor-default" title="Próximamente">Política de privacidad</span>
-      <span class="text-xs opacity-60 cursor-default" title="Próximamente">Términos de uso</span>
+      <a routerLink="/help" class="text-xs opacity-90 hover:underline">Ayuda y privacidad</a>
+      <a routerLink="/help" class="text-xs opacity-90 hover:underline">Términos de uso</a>
       <a href="mailto:soporte@misionpsicosocial.com" class="text-xs opacity-90 hover:underline">Contactar soporte</a>
     </div>
   </footer>
 </div>
 
-<app-toast />

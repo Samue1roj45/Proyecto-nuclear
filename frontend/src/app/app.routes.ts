@@ -34,6 +34,10 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/profile/profile.component').then((m) => m.ProfileComponent),
       },
       {
+        path: 'help',
+        loadComponent: () => import('./pages/help/help.component').then((m) => m.HelpComponent),
+      },
+      {
         path: 'users',
         loadComponent: () => import('./pages/users/users.component').then((m) => m.UsersComponent),
         canActivate: [adminGuard],
@@ -51,6 +55,11 @@ export const routes: Routes = [
       {
         path: 'reset-requests',
         loadComponent: () => import('./pages/reset-requests/reset-requests.component').then((m) => m.ResetRequestsComponent),
+        canActivate: [adminGuard],
+      },
+      {
+        path: 'access-requests',
+        loadComponent: () => import('./pages/access-requests/access-requests.component').then((m) => m.AccessRequestsComponent),
         canActivate: [adminGuard],
       },
       {

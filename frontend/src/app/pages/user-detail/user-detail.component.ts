@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ApiService } from '../../services/api.service';
+import { ConfirmDialogService } from '../../services/confirm-dialog.service';
 import { ToastService } from '../../services/toast.service';
 import { UserDetail } from '../../models';
 import { attemptStatusLabel } from '../../utils/status-labels';
@@ -17,6 +18,7 @@ export class UserDetailComponent implements OnInit {
   private api = inject(ApiService);
   private route = inject(ActivatedRoute);
   private toast = inject(ToastService);
+  private confirmDialog = inject(ConfirmDialogService);
 
   detail: UserDetail | null = null;
   loading = true;
@@ -38,13 +40,18 @@ export class UserDetailComponent implements OnInit {
     });
   }
 
-  resetAttempts(): void {
+  async resetAttempts(): Promise<void> {
     if (!this.detail) return;
     const name = this.detail.user.fullName;
-    const msg =
-      `¿Reiniciar TODOS los intentos de ${name} en todos los casos?\n\n` +
-      'También se aprobarán las solicitudes de reinicio pendientes.';
-    if (!confirm(msg)) return;
+    const confirmed = await this.confirmDialog.confirm({
+      title: 'Reiniciar intentos',
+      message:
+        `¿Reiniciar TODOS los intentos de ${name} en todos los casos?\n\n` +
+        'También se aprobarán las solicitudes de reinicio pendientes.',
+      confirmLabel: 'Reiniciar',
+      variant: 'warning',
+    });
+    if (!confirmed) return;
     this.api.resetUserAttempts(this.detail.user.id).subscribe({
       next: () => {
         this.toast.success('Todos los intentos reiniciados');

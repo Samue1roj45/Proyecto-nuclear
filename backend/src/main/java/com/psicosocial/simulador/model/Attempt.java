@@ -52,6 +52,9 @@ public class Attempt {
     @Builder.Default
     private boolean archived = false;
 
+    @Builder.Default
+    private int elapsedSeconds = 0;
+
     @OneToMany(mappedBy = "attempt", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<AttemptAnswer> answers = new ArrayList<>();

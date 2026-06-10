@@ -41,8 +41,11 @@
         </div>
 
         <div class="flex items-center justify-center gap-2 mt-4 pt-4 border-t border-outline-variant w-full">
-          <button (click)="openSimulator(c)" class="flex-1 bg-secondary-container text-on-secondary-container px-3 py-2 rounded-lg text-sm font-medium hover:opacity-90 flex items-center justify-center gap-1">
-            <span class="material-symbols-outlined text-lg">sports_esports</span> Simulador
+          <button (click)="openQuestions(c)" class="flex-1 bg-primary/20 text-primary px-3 py-2 rounded-lg text-sm font-medium hover:opacity-90 flex items-center justify-center gap-1" title="Gestionar preguntas">
+            <span class="material-symbols-outlined text-lg">quiz</span> Preguntas
+          </button>
+          <button (click)="openSimulator(c)" class="p-2 rounded-lg border border-outline-variant hover:bg-secondary-container text-on-surface-variant" title="Vista previa">
+            <span class="material-symbols-outlined text-lg">visibility</span>
           </button>
           <button (click)="openEdit(c)" class="p-2 rounded-lg border border-outline-variant hover:bg-surface-container-high text-on-surface-variant hover:text-primary" title="Editar">
             <span class="material-symbols-outlined text-lg">edit</span>
@@ -123,6 +126,11 @@
         </div>
       </div>
 
+      <label class="flex items-center gap-2 text-sm cursor-pointer">
+        <input type="checkbox" [(ngModel)]="form.timerEnabled" name="timerEnabled" class="rounded" />
+        Activar cronómetro durante la simulación
+      </label>
+
       <div>
         <label class="block text-sm font-medium text-on-surface-variant mb-1">Competencias a evaluar</label>
         <div class="flex gap-2">
@@ -153,6 +161,108 @@
           {{ editingId ? 'Guardar cambios' : 'Crear caso' }}
         </button>
       </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal preguntas -->
+<div *ngIf="showQuestionsModal" class="fixed inset-0 z-[90] bg-black/40 flex items-center justify-center p-4" (click)="showQuestionsModal = false">
+  <div class="case-modal-panel rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto custom-scrollbar p-6" (click)="$event.stopPropagation()">
+    <div class="flex justify-between items-center mb-5">
+      <div>
+        <h3 class="text-xl font-manrope font-semibold">Preguntas del caso</h3>
+        <p class="text-sm text-on-surface-variant">{{ questionsCaseTitle }}</p>
+      </div>
+      <button (click)="showQuestionsModal = false" class="text-on-surface-variant hover:text-on-surface">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div *ngIf="questionsLoading" class="text-center py-6 text-on-surface-variant">Cargando preguntas...</div>
+
+    <div *ngIf="!questionsLoading" class="space-y-3 mb-6">
+      <div *ngFor="let q of questions; let i = index" class="neon-panel rounded-lg p-4 flex justify-between gap-3" [class.ring-1]="editingQuestionId === q.id" [class.ring-primary]="editingQuestionId === q.id">
+        <div class="flex-1 min-w-0">
+          <span class="text-xs text-primary font-semibold">Pregunta {{ i + 1 }}</span>
+          <p class="text-sm font-medium mt-1">{{ q.text }}</p>
+          <p *ngIf="q.sceneTitle" class="text-xs text-on-surface-variant mt-1">{{ q.sceneTitle }}</p>
+          <p class="text-xs text-on-surface-variant mt-1">{{ q.options?.length || 0 }} opciones</p>
+        </div>
+        <div class="flex flex-col gap-1 shrink-0">
+          <button (click)="moveQuestionUp(i)" [disabled]="i === 0" class="text-on-surface-variant hover:text-on-surface disabled:opacity-30" title="Subir">
+            <span class="material-symbols-outlined text-lg">arrow_upward</span>
+          </button>
+          <button (click)="moveQuestionDown(i)" [disabled]="i === questions.length - 1" class="text-on-surface-variant hover:text-on-surface disabled:opacity-30" title="Bajar">
+            <span class="material-symbols-outlined text-lg">arrow_downward</span>
+          </button>
+          <button (click)="editQuestion(q)" class="text-primary hover:opacity-80" title="Editar">
+            <span class="material-symbols-outlined">edit</span>
+          </button>
+          <button (click)="deleteQuestion(q)" class="text-error hover:opacity-80" title="Eliminar">
+            <span class="material-symbols-outlined">delete</span>
+          </button>
+        </div>
+      </div>
+      <p *ngIf="questions.length === 0" class="text-center text-on-surface-variant py-4">Sin preguntas. Agrega la primera abajo.</p>
+    </div>
+
+    <form (ngSubmit)="saveQuestion()" class="space-y-4 border-t border-outline-variant pt-5">
+      <div class="flex justify-between items-center">
+        <h4 class="font-manrope font-semibold">{{ editingQuestionId ? 'Editar pregunta' : 'Agregar pregunta' }}</h4>
+        <button *ngIf="editingQuestionId" type="button" (click)="cancelEditQuestion()" class="text-sm text-on-surface-variant hover:text-on-surface">Cancelar edición</button>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-on-surface-variant mb-1">Texto de la decisión *</label>
+        <textarea [(ngModel)]="questionForm.text" name="qText" rows="2" required class="w-full rounded-lg px-4 py-2.5 text-sm outline-none resize-none"></textarea>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-on-surface-variant mb-1">Imagen de escena (URL)</label>
+        <input [(ngModel)]="questionForm.sceneImageUrl" name="sceneImageUrl" placeholder="https://..." class="w-full rounded-lg px-4 py-2 text-sm outline-none" />
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-sm font-medium text-on-surface-variant mb-1">Título escena</label>
+          <input [(ngModel)]="questionForm.sceneTitle" name="sceneTitle" placeholder="Escena 1 · Llegada" class="w-full rounded-lg px-4 py-2 text-sm outline-none" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-on-surface-variant mb-1">Subtítulo</label>
+          <input [(ngModel)]="questionForm.sceneSubtitle" name="sceneSubtitle" placeholder="Unidad residencial" class="w-full rounded-lg px-4 py-2 text-sm outline-none" />
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-sm font-medium text-on-surface-variant mb-1">Pista de escena</label>
+          <input [(ngModel)]="questionForm.sceneHint" name="sceneHint" class="w-full rounded-lg px-4 py-2 text-sm outline-none" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-on-surface-variant mb-1">Etiqueta NPC</label>
+          <input [(ngModel)]="questionForm.npcLabel" name="npcLabel" placeholder="Víctima" class="w-full rounded-lg px-4 py-2 text-sm outline-none" />
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        <label class="block text-sm font-medium text-on-surface-variant">Opciones de respuesta</label>
+        <div *ngFor="let opt of questionForm.options; let i = index" class="neon-panel rounded-lg p-3 space-y-2">
+          <div class="flex gap-2 items-start">
+            <span class="text-xs font-bold text-primary mt-2">{{ i + 1 }}</span>
+            <div class="flex-1 space-y-2">
+              <input [(ngModel)]="opt.text" [name]="'optText' + i" placeholder="Texto de la opción" class="w-full rounded-lg px-3 py-2 text-sm outline-none" />
+              <input [(ngModel)]="opt.feedback" [name]="'optFb' + i" placeholder="Feedback (explicación)" class="w-full rounded-lg px-3 py-2 text-sm outline-none" />
+              <div class="flex gap-3 items-center flex-wrap">
+                <label class="flex items-center gap-1 text-xs cursor-pointer">
+                  <input type="radio" [name]="'correctOpt'" [checked]="opt.correct" (change)="setCorrectOption(i)" />
+                  Correcta
+                </label>
+                <app-glass-select [(ngModel)]="opt.category" [name]="'optCat' + i" [options]="categoryOptions" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="bg-primary text-on-primary px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-primary-container">
+        {{ editingQuestionId ? 'Guardar cambios' : 'Agregar pregunta' }}
+      </button>
     </form>
   </div>
 </div>

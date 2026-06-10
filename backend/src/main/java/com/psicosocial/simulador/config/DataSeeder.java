@@ -66,17 +66,26 @@ public class DataSeeder implements CommandLineRunner {
                 ))
                 .build();
 
+        case1.setTimerEnabled(true);
+
         Question q1 = Question.builder()
                 .caseStudy(case1)
                 .text("¿Cuál es su primera acción al ingresar?")
                 .orderIndex(0)
                 .sceneImageUrl(SCENE_IMAGE)
+                .sceneTitle("Escena 1 · Llegada de emergencia")
+                .sceneSubtitle("Unidad residencial · Noche")
+                .sceneHint("Acércate a la víctima para evaluar su estado.")
+                .npcLabel("Víctima")
                 .build();
 
         q1.setOptions(List.of(
-                option(q1, "Entrevistar por separado a los implicados de inmediato.", 0, false, ScoreCategory.CLINICAL),
-                option(q1, "Asegurar el entorno y verificar integridad física de la víctima.", 1, true, ScoreCategory.CLINICAL),
-                option(q1, "Llamar a la policía nacional antes de mediar.", 2, false, ScoreCategory.NORMATIVE)
+                option(q1, "Entrevistar por separado a los implicados de inmediato.", 0, false, ScoreCategory.CLINICAL,
+                        "Separar sin asegurar el entorno puede re-victimizar y aumentar el riesgo."),
+                option(q1, "Asegurar el entorno y verificar integridad física de la víctima.", 1, true, ScoreCategory.CLINICAL,
+                        "Correcto: la seguridad física y emocional es la prioridad en crisis VBG."),
+                option(q1, "Llamar a la policía nacional antes de mediar.", 2, false, ScoreCategory.NORMATIVE,
+                        "La policía puede ser necesaria, pero no antes de garantizar contención y evaluación.")
         ));
 
         Question q2 = Question.builder()
@@ -84,12 +93,19 @@ public class DataSeeder implements CommandLineRunner {
                 .text("La víctima manifiesta miedo extremo. ¿Cuál es la intervención más adecuada?")
                 .orderIndex(1)
                 .sceneImageUrl(SCENE_IMAGE)
+                .sceneTitle("Escena 2 · Sala de contención")
+                .sceneSubtitle("Interior · Zona segura")
+                .sceneHint("La víctima muestra miedo extremo. Acércate con cuidado.")
+                .npcLabel("Víctima")
                 .build();
 
         q2.setOptions(List.of(
-                option(q2, "Aplicar primeros auxilios psicológicos y validar emociones.", 0, true, ScoreCategory.ETHICAL),
-                option(q2, "Solicitar que relate los hechos con detalle inmediato.", 1, false, ScoreCategory.CLINICAL),
-                option(q2, "Informar al agresor sobre la denuncia en curso.", 2, false, ScoreCategory.ETHICAL)
+                option(q2, "Aplicar primeros auxilios psicológicos y validar emociones.", 0, true, ScoreCategory.ETHICAL,
+                        "Correcto: PAP estabilizan emocionalmente sin exigir relato inmediato."),
+                option(q2, "Solicitar que relate los hechos con detalle inmediato.", 1, false, ScoreCategory.CLINICAL,
+                        "Exigir relato detallado en crisis puede re-traumatizar a la víctima."),
+                option(q2, "Informar al agresor sobre la denuncia en curso.", 2, false, ScoreCategory.ETHICAL,
+                        "Informar al agresor pone en riesgo a la víctima y viola confidencialidad.")
         ));
 
         Question q3 = Question.builder()
@@ -97,16 +113,27 @@ public class DataSeeder implements CommandLineRunner {
                 .text("¿Qué ruta institucional debe activar según la normativa colombiana?")
                 .orderIndex(2)
                 .sceneImageUrl(SCENE_IMAGE)
+                .sceneTitle("Escena 3 · Activación de rutas")
+                .sceneSubtitle("Puesto de coordinación")
+                .sceneHint("Ve al panel de rutas institucionales.")
+                .npcLabel(null)
                 .build();
 
         q3.setOptions(List.of(
-                option(q3, "Comisaría de familia y ruta de atención integral VBG.", 0, true, ScoreCategory.NORMATIVE),
-                option(q3, "Solo derivación a psicología clínica privada.", 1, false, ScoreCategory.NORMATIVE),
-                option(q3, "Esperar consentimiento del agresor para activar rutas.", 2, false, ScoreCategory.ETHICAL)
+                option(q3, "Comisaría de familia y ruta de atención integral VBG.", 0, true, ScoreCategory.NORMATIVE,
+                        "Correcto: activa la ruta integral de protección según Ley 1257 y normativa vigente."),
+                option(q3, "Solo derivación a psicología clínica privada.", 1, false, ScoreCategory.NORMATIVE,
+                        "La atención privada no activa las rutas de protección estatal obligatorias."),
+                option(q3, "Esperar consentimiento del agresor para activar rutas.", 2, false, ScoreCategory.ETHICAL,
+                        "El consentimiento del agresor no es requisito para activar rutas de protección.")
         ));
 
         case1.setQuestions(List.of(q1, q2, q3));
         caseStudyRepository.save(case1);
+
+        CaseStudy case2 = buildCase2();
+        CaseStudy case3 = buildCase3();
+        caseStudyRepository.saveAll(List.of(case2, case3));
 
         Attempt attempt1 = Attempt.builder()
                 .user(student)
@@ -243,13 +270,95 @@ public class DataSeeder implements CommandLineRunner {
                 .build());
     }
 
-    private AnswerOption option(Question q, String text, int order, boolean correct, ScoreCategory cat) {
+    private CaseStudy buildCase2() {
+        CaseStudy c = CaseStudy.builder()
+                .title("Caso 2: Acoso laboral y salud mental")
+                .description("Simulación sobre intervención psicosocial en contexto laboral con señales de acoso, burnout y riesgo suicida.")
+                .category("Salud ocupacional")
+                .level("Nivel Básico")
+                .imageUrl(CASE_IMAGE)
+                .contextQuote("Un trabajador solicita apoyo tras meses de presión constante de su jefe...")
+                .estimatedMinutes(30)
+                .complexityStars(2.5)
+                .timerEnabled(false)
+                .competencies(List.of("Detección de riesgo", "Confidencialidad", "Derivación"))
+                .build();
+
+        Question q1 = Question.builder().caseStudy(c).text("¿Cuál es su primer paso al recibir la consulta?")
+                .orderIndex(0).sceneTitle("Escena 1 · Consulta inicial").sceneSubtitle("Oficina de recursos humanos")
+                .sceneHint("Escucha activa sin juzgar.").npcLabel("Trabajador").build();
+        q1.setOptions(List.of(
+                option(q1, "Escuchar con empatía y evaluar nivel de riesgo.", 0, true, ScoreCategory.CLINICAL, "Correcto: la contención y evaluación de riesgo son prioritarias."),
+                option(q1, "Solicitar pruebas del acoso antes de intervenir.", 1, false, ScoreCategory.ETHICAL, "Exigir pruebas puede invalidar la experiencia del consultante."),
+                option(q1, "Contactar al jefe inmediatamente.", 2, false, ScoreCategory.NORMATIVE, "Contactar al presunto agresor sin protocolo puede agravar la situación.")
+        ));
+
+        Question q2 = Question.builder().caseStudy(c).text("El trabajador menciona ideación suicida leve. ¿Qué hace?")
+                .orderIndex(1).sceneTitle("Escena 2 · Evaluación de riesgo").sceneSubtitle("Sala de entrevista")
+                .sceneHint("Evalúa factores de protección y riesgo.").npcLabel("Trabajador").build();
+        q2.setOptions(List.of(
+                option(q2, "Activar protocolo de riesgo y no dejarlo solo.", 0, true, ScoreCategory.CLINICAL, "Correcto: ideación suicida requiere protocolo inmediato."),
+                option(q2, "Agendar cita para la próxima semana.", 1, false, ScoreCategory.ETHICAL, "Posponer con ideación suicida es negligencia."),
+                option(q2, "Informar a compañeros para que lo vigilen.", 2, false, ScoreCategory.ETHICAL, "Violación grave de confidencialidad.")
+        ));
+
+        c.setQuestions(List.of(q1, q2));
+        return c;
+    }
+
+    private CaseStudy buildCase3() {
+        CaseStudy c = CaseStudy.builder()
+                .title("Caso 3: Intervención comunitaria post-conflicto")
+                .description("Toma de decisiones en un barrio afectado por violencia, priorizando enfoque comunitario y participación.")
+                .category("Psicología comunitaria")
+                .level("Nivel Avanzado")
+                .imageUrl(CASE_IMAGE)
+                .contextQuote("La comunidad solicita apoyo tras un enfrentamiento que dejó familias desplazadas...")
+                .estimatedMinutes(50)
+                .complexityStars(4.0)
+                .timerEnabled(true)
+                .competencies(List.of("Trabajo comunitario", "Mediación", "Enfoque cultural"))
+                .build();
+
+        Question q1 = Question.builder().caseStudy(c).text("¿Cómo inicia la intervención comunitaria?")
+                .orderIndex(0).sceneTitle("Escena 1 · Asamblea comunitaria").sceneSubtitle("Centro comunitario")
+                .sceneHint("Escucha las voces de la comunidad.").npcLabel("Líder comunitario").build();
+        q1.setOptions(List.of(
+                option(q1, "Diagnóstico participativo con actores clave.", 0, true, ScoreCategory.CLINICAL, "Correcto: el enfoque participativo legitima la intervención."),
+                option(q1, "Imponer un plan elaborado desde la universidad.", 1, false, ScoreCategory.ETHICAL, "Imponer desde afuera reproduce dinámicas de desposeimiento."),
+                option(q1, "Evitar involucrar a líderes informales.", 2, false, ScoreCategory.NORMATIVE, "Los líderes informales son clave en contextos comunitarios.")
+        ));
+
+        Question q2 = Question.builder().caseStudy(c).text("Dos familias en conflicto piden mediación. ¿Qué hace?")
+                .orderIndex(1).sceneTitle("Escena 2 · Mediación").sceneSubtitle("Salón comunal")
+                .sceneHint("Neutralidad y seguridad emocional.").npcLabel("Familias").build();
+        q2.setOptions(List.of(
+                option(q2, "Mediación con reglas claras y espacio seguro.", 0, true, ScoreCategory.ETHICAL, "Correcto: la mediación requiere neutralidad y reglas."),
+                option(q2, "Tomar partido por la familia más afectada.", 1, false, ScoreCategory.ETHICAL, "Perder neutralidad invalida la mediación."),
+                option(q2, "Derivar a la fuerza pública de inmediato.", 2, false, ScoreCategory.NORMATIVE, "La fuerza pública no es primera línea en mediación comunitaria.")
+        ));
+
+        Question q3 = Question.builder().caseStudy(c).text("¿Cómo documenta y reporta la intervención?")
+                .orderIndex(2).sceneTitle("Escena 3 · Informe").sceneSubtitle("Coordinación institucional")
+                .sceneHint("Documenta con enfoque ético.").build();
+        q3.setOptions(List.of(
+                option(q3, "Informe con consentimiento y enfoque de derechos.", 0, true, ScoreCategory.NORMATIVE, "Correcto: documentar con consentimiento protege a la comunidad."),
+                option(q3, "Publicar nombres en redes para visibilizar.", 1, false, ScoreCategory.ETHICAL, "Exponer datos viola confidencialidad y puede estigmatizar."),
+                option(q3, "No documentar para proteger al equipo.", 2, false, ScoreCategory.NORMATIVE, "La omisión de registro dificulta continuidad y rendición de cuentas.")
+        ));
+
+        c.setQuestions(List.of(q1, q2, q3));
+        return c;
+    }
+
+    private AnswerOption option(Question q, String text, int order, boolean correct, ScoreCategory cat, String feedback) {
         return AnswerOption.builder()
                 .question(q)
                 .text(text)
                 .orderIndex(order)
                 .correct(correct)
                 .category(cat)
+                .feedback(feedback)
                 .weight(1.0)
                 .build();
     }

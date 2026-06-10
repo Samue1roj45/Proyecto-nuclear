@@ -31,6 +31,18 @@ public class Question {
     @Column(length = 1000)
     private String sceneImageUrl;
 
+    @Column(length = 200)
+    private String sceneTitle;
+
+    @Column(length = 300)
+    private String sceneSubtitle;
+
+    @Column(length = 500)
+    private String sceneHint;
+
+    @Column(length = 100)
+    private String npcLabel;
+
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("orderIndex ASC")
     @Builder.Default

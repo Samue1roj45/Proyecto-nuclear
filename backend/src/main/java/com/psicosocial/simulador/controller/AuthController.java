@@ -16,8 +16,21 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<LoginStepResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
+    }
+
+    @PostMapping("/verify-access-code")
+    public ResponseEntity<AuthResponse> verifyAccessCode(@Valid @RequestBody VerifyAccessCodeRequest request) {
+        return ResponseEntity.ok(authService.verifyAccessCode(request));
+    }
+
+    @GetMapping("/access-status")
+    public ResponseEntity<AccessStatusResponse> accessStatus(
+            @RequestParam String accessSession,
+            @RequestParam String email
+    ) {
+        return ResponseEntity.ok(authService.getAccessStatus(accessSession, email));
     }
 
     @PostMapping("/register")
@@ -36,12 +49,12 @@ public class AuthController {
     }
 
     @PostMapping("/oauth/google")
-    public ResponseEntity<AuthResponse> oauthGoogle(@Valid @RequestBody OAuthGoogleRequest request) {
+    public ResponseEntity<LoginStepResponse> oauthGoogle(@Valid @RequestBody OAuthGoogleRequest request) {
         return ResponseEntity.ok(authService.loginWithGoogle(request));
     }
 
     @PostMapping("/oauth/facebook")
-    public ResponseEntity<AuthResponse> oauthFacebook(@Valid @RequestBody OAuthFacebookRequest request) {
+    public ResponseEntity<LoginStepResponse> oauthFacebook(@Valid @RequestBody OAuthFacebookRequest request) {
         return ResponseEntity.ok(authService.loginWithFacebook(request));
     }
 }

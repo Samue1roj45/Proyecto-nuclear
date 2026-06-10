@@ -21,6 +21,7 @@ import java.util.Locale;
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final NotificationStreamService notificationStreamService;
     private static final DateTimeFormatter FORMATTER =
             DateTimeFormatter.ofPattern("dd/MM/yyyy, h:mm a", new Locale("es", "CO"));
 
@@ -32,6 +33,7 @@ public class NotificationService {
                 .type(type)
                 .link(link)
                 .build());
+        notificationStreamService.publishUpdate(user, unreadCount(user));
     }
 
     @Transactional(readOnly = true)
@@ -56,12 +58,14 @@ public class NotificationService {
         }
         n.setRead(true);
         notificationRepository.save(n);
+        notificationStreamService.publishUpdate(user, unreadCount(user));
         return MessageResponse.builder().message("Notificación marcada como leída").build();
     }
 
     @Transactional
     public MessageResponse markAllRead(User user) {
         notificationRepository.markAllRead(user);
+        notificationStreamService.publishUpdate(user, unreadCount(user));
         return MessageResponse.builder().message("Todas las notificaciones marcadas como leídas").build();
     }
 
@@ -73,12 +77,14 @@ public class NotificationService {
             throw new RuntimeException("No autorizado");
         }
         notificationRepository.delete(n);
+        notificationStreamService.publishUpdate(user, unreadCount(user));
         return MessageResponse.builder().message("Notificación eliminada").build();
     }
 
     @Transactional
     public MessageResponse clearAll(User user) {
         notificationRepository.deleteAllByUser(user);
+        notificationStreamService.publishUpdate(user, unreadCount(user));
         return MessageResponse.builder().message("Notificaciones eliminadas").build();
     }
 

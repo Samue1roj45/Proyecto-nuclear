@@ -28,4 +28,7 @@ public class CaseDetailDto {
     private int currentQuestionIndex;
     private int totalQuestions;
     private QuestionDto currentQuestion;
+    private boolean timerEnabled;
+    private int elapsedSeconds;
+    private double passThreshold;
 }

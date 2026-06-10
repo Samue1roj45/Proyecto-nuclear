@@ -10,11 +10,17 @@ import {
   CaseAdmin,
   CaseDetail,
   CaseFormRequest,
+  HelpSection,
+  QuestionAdmin,
+  QuestionFormRequest,
+  SubmitAnswerResponse,
   CreateGroupRequest,
   CreateUserRequest,
   LeaderboardEntry,
   StudentGroup,
   ReportsSummary,
+  AccessRequestSummary,
+  ApproveAccessResponse,
   ResetRequestSummary,
   StudentDashboard,
   UserDetail,
@@ -55,10 +61,10 @@ export class ApiService {
     });
   }
 
-  submitAnswer(caseId: number, questionId: number, optionId: number) {
-    return this.http.post<CaseDetail>(
+  submitAnswer(caseId: number, questionId: number, optionId: number, elapsedSeconds?: number) {
+    return this.http.post<SubmitAnswerResponse>(
       `${environment.apiUrl}/cases/${caseId}/answer`,
-      { questionId, optionId },
+      { questionId, optionId, elapsedSeconds },
       { headers: this.headers() }
     );
   }
@@ -71,8 +77,8 @@ export class ApiService {
     );
   }
 
-  getReports(search?: string, status?: string, sort?: string) {
-    let params = new HttpParams();
+  getReports(search?: string, status?: string, sort?: string, page = 0, pageSize = 20) {
+    let params = new HttpParams().set('page', page).set('pageSize', pageSize);
     if (search) params = params.set('search', search);
     if (status) params = params.set('status', status);
     if (sort) params = params.set('sort', sort);
@@ -80,6 +86,10 @@ export class ApiService {
       headers: this.headers(),
       params,
     });
+  }
+
+  getHelp() {
+    return this.http.get<HelpSection[]>(`${environment.apiUrl}/help`);
   }
 
   getAttemptDetail(id: number) {
@@ -283,6 +293,30 @@ export class ApiService {
     );
   }
 
+  getAccessRequests(pendingOnly = true) {
+    let params = new HttpParams().set('pendingOnly', String(pendingOnly));
+    return this.http.get<AccessRequestSummary[]>(`${environment.apiUrl}/admin/access-requests`, {
+      headers: this.headers(),
+      params,
+    });
+  }
+
+  approveAccessRequest(id: number) {
+    return this.http.post<ApproveAccessResponse>(
+      `${environment.apiUrl}/admin/access-requests/${id}/approve`,
+      {},
+      { headers: this.headers() }
+    );
+  }
+
+  rejectAccessRequest(id: number) {
+    return this.http.post<{ message: string }>(
+      `${environment.apiUrl}/admin/access-requests/${id}/reject`,
+      {},
+      { headers: this.headers() }
+    );
+  }
+
   // ===== Cases (admin) =====
   getAdminCases(search?: string) {
     let params = new HttpParams();
@@ -307,6 +341,44 @@ export class ApiService {
 
   deleteCase(id: number) {
     return this.http.delete<{ message: string }>(`${environment.apiUrl}/admin/cases/${id}`, {
+      headers: this.headers(),
+    });
+  }
+
+  getCaseQuestions(caseId: number) {
+    return this.http.get<QuestionAdmin[]>(`${environment.apiUrl}/admin/cases/${caseId}/questions`, {
+      headers: this.headers(),
+    });
+  }
+
+  addQuestion(caseId: number, req: QuestionFormRequest) {
+    return this.http.post<{ message: string }>(`${environment.apiUrl}/admin/cases/${caseId}/questions`, req, {
+      headers: this.headers(),
+    });
+  }
+
+  updateQuestion(questionId: number, req: QuestionFormRequest) {
+    return this.http.put<QuestionAdmin>(`${environment.apiUrl}/admin/questions/${questionId}`, req, {
+      headers: this.headers(),
+    });
+  }
+
+  reorderQuestions(caseId: number, questionIds: number[]) {
+    return this.http.put<{ message: string }>(
+      `${environment.apiUrl}/admin/cases/${caseId}/questions/reorder`,
+      { questionIds },
+      { headers: this.headers() },
+    );
+  }
+
+  deleteQuestion(questionId: number) {
+    return this.http.delete<{ message: string }>(`${environment.apiUrl}/admin/questions/${questionId}`, {
+      headers: this.headers(),
+    });
+  }
+
+  resetAllAccess() {
+    return this.http.post<{ message: string }>(`${environment.apiUrl}/admin/access-requests/reset-all`, {}, {
       headers: this.headers(),
     });
   }

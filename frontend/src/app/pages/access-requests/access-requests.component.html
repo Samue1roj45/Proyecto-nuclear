@@ -1,0 +1,60 @@
+<div class="max-w-4xl mx-auto p-8 space-y-6">
+  <div class="flex justify-between items-end">
+    <div>
+      <h2 class="text-3xl font-manrope font-semibold text-on-surface">Solicitudes de acceso</h2>
+      <p class="text-on-surface-variant mt-1">
+        Aprueba o rechaza las solicitudes de ingreso de estudiantes y genera códigos temporales únicos.
+      </p>
+    </div>
+    <div class="flex gap-3 items-center">
+      <button (click)="resetAll()" class="text-sm text-on-surface-variant border border-outline-variant px-3 py-1.5 rounded-lg hover:bg-surface-container-high" title="Limpiar todos los accesos al final del semestre">
+        Reiniciar todos
+      </button>
+      <button (click)="togglePending()" class="text-sm text-primary font-medium hover:underline">
+        {{ pendingOnly ? 'Ver historial completo' : 'Ver solo pendientes' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="space-y-3" *ngIf="!loading">
+    <div *ngIf="requests.length === 0" class="bg-surface-container-lowest border border-outline-variant rounded-xl p-12 text-center text-on-surface-variant">
+      <span class="material-symbols-outlined text-5xl mb-2">how_to_reg</span>
+      <p>No hay solicitudes {{ pendingOnly ? 'pendientes' : '' }}.</p>
+    </div>
+
+    <div *ngFor="let r of requests"
+         class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 flex items-center gap-4">
+      <app-user-avatar [avatarUrl]="r.studentAvatar" [fullName]="r.studentName"
+                       imgClass="w-12 h-12 rounded-full object-cover border border-outline-variant" />
+      <div class="flex-1 min-w-0">
+        <p class="font-medium text-on-surface">{{ r.studentName }}</p>
+        <p class="text-xs text-on-surface-variant">{{ r.studentEmail }}</p>
+        <p class="text-xs text-on-surface-variant mt-1">Solicitado: {{ r.requestedAt }} · {{ r.timeAgo }}</p>
+        <p *ngIf="r.approvedByName" class="text-xs text-on-surface-variant mt-0.5">
+          Revisado por {{ r.approvedByName }} · {{ r.approvedAt }}
+        </p>
+        <p *ngIf="r.expiresAt" class="text-xs text-on-surface-variant mt-0.5">Expira: {{ r.expiresAt }}</p>
+      </div>
+      <span class="px-3 py-1 rounded-full text-xs font-semibold"
+            [class.bg-secondary-container]="r.status === 'PENDIENTE'"
+            [class.text-on-secondary-container]="r.status === 'PENDIENTE'"
+            [class.bg-error-container]="r.status === 'RECHAZADO'"
+            [class.text-on-error-container]="r.status === 'RECHAZADO'"
+            [class.bg-surface-container-high]="r.status !== 'PENDIENTE' && r.status !== 'RECHAZADO'">
+        {{ statusLabel(r.status) }}
+      </span>
+      <div class="flex items-center gap-2" *ngIf="r.status === 'PENDIENTE'">
+        <button (click)="approve(r)"
+                class="bg-primary text-on-primary px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-container flex items-center gap-1">
+          <span class="material-symbols-outlined text-lg">check</span> Aprobar
+        </button>
+        <button (click)="reject(r)"
+                class="border border-error text-error px-4 py-2 rounded-lg text-sm font-medium hover:bg-error-container flex items-center gap-1">
+          <span class="material-symbols-outlined text-lg">close</span> Rechazar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="p-12 text-center text-on-surface-variant">Cargando solicitudes...</div>
+</div>

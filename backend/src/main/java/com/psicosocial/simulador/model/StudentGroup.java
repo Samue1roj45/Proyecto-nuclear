@@ -35,6 +35,15 @@ public class StudentGroup {
     @Builder.Default
     private Set<User> members = new HashSet<>();
 
+    @ManyToMany
+    @JoinTable(
+            name = "group_cases",
+            joinColumns = @JoinColumn(name = "group_id"),
+            inverseJoinColumns = @JoinColumn(name = "case_id")
+    )
+    @Builder.Default
+    private Set<CaseStudy> assignedCases = new HashSet<>();
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
 }

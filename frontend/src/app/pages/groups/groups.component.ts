@@ -3,8 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../../services/api.service';
+import { ConfirmDialogService } from '../../services/confirm-dialog.service';
 import { ToastService } from '../../services/toast.service';
-import { CreateGroupRequest, StudentGroup, UserDto } from '../../models';
+import { CaseAdmin, CreateGroupRequest, StudentGroup, UserDto } from '../../models';
 import { UserAvatarComponent } from '../../components/user-avatar/user-avatar.component';
 
 @Component({
@@ -16,10 +17,12 @@ import { UserAvatarComponent } from '../../components/user-avatar/user-avatar.co
 export class GroupsComponent implements OnInit {
   private api = inject(ApiService);
   private toast = inject(ToastService);
+  private confirmDialog = inject(ConfirmDialogService);
   private route = inject(ActivatedRoute);
 
   groups: StudentGroup[] = [];
   students: UserDto[] = [];
+  cases: CaseAdmin[] = [];
   loading = true;
   saving = false;
   showModal = false;
@@ -28,6 +31,7 @@ export class GroupsComponent implements OnInit {
 
   form: CreateGroupRequest = this.emptyForm();
   selectedStudentIds = new Set<number>();
+  selectedCaseIds = new Set<number>();
 
   ngOnInit(): void {
     this.route.queryParams.subscribe((params) => {
@@ -35,6 +39,13 @@ export class GroupsComponent implements OnInit {
     });
     this.load();
     this.loadStudents();
+    this.loadCases();
+  }
+
+  loadCases(): void {
+    this.api.getAdminCases().subscribe({
+      next: (list) => (this.cases = list || []),
+    });
   }
 
   emptyForm(): CreateGroupRequest {
@@ -84,6 +95,7 @@ export class GroupsComponent implements OnInit {
     this.editingId = null;
     this.form = this.emptyForm();
     this.selectedStudentIds = new Set();
+    this.selectedCaseIds = new Set();
     this.showModal = true;
   }
 
@@ -94,8 +106,10 @@ export class GroupsComponent implements OnInit {
       name: group.name,
       description: group.description,
       studentIds: members.map((m) => m.id),
+      caseIds: group.assignedCaseIds || [],
     };
     this.selectedStudentIds = new Set(members.map((m) => m.id));
+    this.selectedCaseIds = new Set(group.assignedCaseIds || []);
     this.showModal = true;
   }
 
@@ -118,6 +132,17 @@ export class GroupsComponent implements OnInit {
     return this.selectedStudentIds.has(id);
   }
 
+  toggleCase(id: number, checked: boolean): void {
+    const next = new Set(this.selectedCaseIds);
+    if (checked) next.add(id);
+    else next.delete(id);
+    this.selectedCaseIds = next;
+  }
+
+  isCaseSelected(id: number): boolean {
+    return this.selectedCaseIds.has(id);
+  }
+
   save(): void {
     if (!this.form.name.trim()) {
       this.toast.error('El nombre del grupo es obligatorio');
@@ -129,6 +154,7 @@ export class GroupsComponent implements OnInit {
       name: this.form.name.trim(),
       description: this.form.description?.trim() || '',
       studentIds: Array.from(this.selectedStudentIds),
+      caseIds: Array.from(this.selectedCaseIds),
     };
 
     const req = this.editingId
@@ -149,8 +175,14 @@ export class GroupsComponent implements OnInit {
     });
   }
 
-  remove(group: StudentGroup): void {
-    if (!confirm(`¿Eliminar el grupo "${group.name}"?`)) return;
+  async remove(group: StudentGroup): Promise<void> {
+    const confirmed = await this.confirmDialog.confirm({
+      title: 'Eliminar grupo',
+      message: `¿Eliminar el grupo "${group.name}"?`,
+      confirmLabel: 'Eliminar',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
     this.api.deleteGroup(group.id).subscribe({
       next: () => {
         this.toast.success('Grupo eliminado');

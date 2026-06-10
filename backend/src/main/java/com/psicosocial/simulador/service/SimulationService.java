@@ -23,11 +23,13 @@ public class SimulationService {
     private final ResetRequestRepository resetRequestRepository;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
+    private final CaseAccessService caseAccessService;
 
     @Transactional(readOnly = true)
     public CaseDetailDto getCaseDetail(Long caseId, User user) {
         CaseStudy caseStudy = caseStudyRepository.findById(caseId)
                 .orElseThrow(() -> new RuntimeException("Caso no encontrado"));
+        caseAccessService.ensureCaseVisible(caseStudy, user);
 
         List<Attempt> attempts = attemptRepository.findByUserAndCaseStudyAndArchivedFalseOrderByAttemptNumberDesc(user, caseStudy);
         CaseStatus status = DashboardService.resolveStatus(attempts, user.getMaxAttempts());
@@ -42,45 +44,36 @@ public class SimulationService {
         QuestionDto currentQuestion = null;
         int currentIndex = 0;
         Long activeAttemptId = null;
+        int elapsedSeconds = 0;
 
         if (active != null) {
             activeAttemptId = active.getId();
             currentIndex = active.getCurrentQuestionIndex();
+            elapsedSeconds = active.getElapsedSeconds();
             currentQuestion = toQuestionDto(getQuestionAt(caseStudy, currentIndex));
-        } else if (!blocked && status == CaseStatus.AVAILABLE && !caseStudy.getQuestions().isEmpty()) {
+        } else if (!blocked && status != CaseStatus.PASSED && !caseStudy.getQuestions().isEmpty()) {
             currentQuestion = toQuestionDto(caseStudy.getQuestions().get(0));
         }
 
-        return CaseDetailDto.builder()
-                .id(caseStudy.getId())
-                .title(caseStudy.getTitle())
-                .description(caseStudy.getDescription())
-                .category(caseStudy.getCategory())
-                .level(caseStudy.getLevel())
-                .imageUrl(caseStudy.getImageUrl())
-                .contextQuote(caseStudy.getContextQuote())
-                .estimatedMinutes(caseStudy.getEstimatedMinutes())
-                .complexityStars(caseStudy.getComplexityStars())
-                .competencies(caseStudy.getCompetencies())
-                .studentStatus(status)
-                .attemptsUsed(attempts.size())
-                .maxAttempts(user.getMaxAttempts())
-                .blocked(blocked)
-                .resetPending(resetPending)
-                .activeAttemptId(activeAttemptId)
-                .currentQuestionIndex(currentIndex)
-                .totalQuestions(caseStudy.getQuestions().size())
-                .currentQuestion(currentQuestion)
-                .build();
+        return buildCaseDetail(caseStudy, status, attempts.size(), user.getMaxAttempts(),
+                blocked, resetPending, activeAttemptId, currentIndex, currentQuestion, elapsedSeconds);
     }
 
     @Transactional
     public CaseDetailDto startAttempt(Long caseId, User user) {
         CaseStudy caseStudy = caseStudyRepository.findById(caseId)
                 .orElseThrow(() -> new RuntimeException("Caso no encontrado"));
+        caseAccessService.ensureCaseVisible(caseStudy, user);
+
+        if (caseStudy.getQuestions().isEmpty()) {
+            throw new RuntimeException("Este caso no tiene preguntas configuradas");
+        }
 
         List<Attempt> attempts = attemptRepository.findByUserAndCaseStudyAndArchivedFalseOrderByAttemptNumberDesc(user, caseStudy);
         CaseStatus status = DashboardService.resolveStatus(attempts, user.getMaxAttempts());
+        if (status == CaseStatus.PASSED) {
+            throw new RuntimeException("Ya aprobaste este caso. Solicita reinicio al profesor si necesitas reintentar.");
+        }
         if (status == CaseStatus.BLOCKED || status == CaseStatus.FAILED) {
             throw new RuntimeException("Caso bloqueado. Solicita reinicio de intentos.");
         }
@@ -98,15 +91,17 @@ public class SimulationService {
                 .attemptNumber(attempts.size() + 1)
                 .status(AttemptStatus.IN_PROGRESS)
                 .currentQuestionIndex(0)
+                .elapsedSeconds(0)
                 .build();
         attemptRepository.save(attempt);
         return getCaseDetail(caseId, user);
     }
 
     @Transactional
-    public CaseDetailDto submitAnswer(Long caseId, User user, SubmitAnswerRequest request) {
+    public SubmitAnswerResponse submitAnswer(Long caseId, User user, SubmitAnswerRequest request) {
         CaseStudy caseStudy = caseStudyRepository.findById(caseId)
                 .orElseThrow(() -> new RuntimeException("Caso no encontrado"));
+        caseAccessService.ensureCaseVisible(caseStudy, user);
 
         Attempt attempt = attemptRepository.findByUserAndCaseStudyAndStatus(user, caseStudy, AttemptStatus.IN_PROGRESS)
                 .orElseThrow(() -> new RuntimeException("No hay intento activo"));
@@ -138,6 +133,10 @@ public class SimulationService {
             throw new RuntimeException("La opción no pertenece a esta pregunta");
         }
 
+        if (request.getElapsedSeconds() != null && request.getElapsedSeconds() > attempt.getElapsedSeconds()) {
+            attempt.setElapsedSeconds(request.getElapsedSeconds());
+        }
+
         AttemptAnswer answer = AttemptAnswer.builder()
                 .attempt(attempt)
                 .question(question)
@@ -146,15 +145,31 @@ public class SimulationService {
                 .build();
         attempt.getAnswers().add(answer);
 
+        AnswerFeedbackDto feedback = buildFeedback(option, question);
+
         int nextIndex = attempt.getCurrentQuestionIndex() + 1;
         attempt.setCurrentQuestionIndex(nextIndex);
 
+        AttemptResultDto result = null;
         if (nextIndex >= caseStudy.getQuestions().size()) {
             finalizeAttempt(attempt, caseStudy, user);
+            result = AttemptResultDto.builder()
+                    .passed(attempt.getStatus() == AttemptStatus.PASSED)
+                    .totalScore(attempt.getTotalScore())
+                    .clinicalScore(attempt.getClinicalScore())
+                    .ethicalScore(attempt.getEthicalScore())
+                    .normativeScore(attempt.getNormativeScore())
+                    .attemptId(attempt.getId())
+                    .build();
         }
 
         attemptRepository.save(attempt);
-        return getCaseDetail(caseId, user);
+
+        return SubmitAnswerResponse.builder()
+                .caseDetail(getCaseDetail(caseId, user))
+                .feedback(feedback)
+                .result(result)
+                .build();
     }
 
     @Transactional
@@ -174,6 +189,27 @@ public class SimulationService {
                         NotificationType.RESET_REQUEST, "/reset-requests"));
 
         return MessageResponse.builder().message("Solicitud de reinicio enviada al profesor").build();
+    }
+
+    private AnswerFeedbackDto buildFeedback(AnswerOption selected, Question question) {
+        AnswerOption correctOption = question.getOptions().stream()
+                .filter(AnswerOption::isCorrect)
+                .findFirst()
+                .orElse(null);
+
+        String message = selected.getFeedback();
+        if (message == null || message.isBlank()) {
+            message = selected.isCorrect()
+                    ? "Respuesta correcta. Buen criterio clínico y ético."
+                    : "Respuesta incorrecta. Revisa el enfoque recomendado.";
+        }
+
+        return AnswerFeedbackDto.builder()
+                .correct(selected.isCorrect())
+                .message(message)
+                .category(selected.getCategory() != null ? selected.getCategory().name() : "")
+                .correctAnswerText(correctOption != null ? correctOption.getText() : null)
+                .build();
     }
 
     private void finalizeAttempt(Attempt attempt, CaseStudy caseStudy, User user) {
@@ -230,6 +266,36 @@ public class SimulationService {
                 .orElse(null);
     }
 
+    private CaseDetailDto buildCaseDetail(CaseStudy caseStudy, CaseStatus status, int attemptsUsed,
+                                          int maxAttempts, boolean blocked, boolean resetPending,
+                                          Long activeAttemptId, int currentIndex, QuestionDto currentQuestion,
+                                          int elapsedSeconds) {
+        return CaseDetailDto.builder()
+                .id(caseStudy.getId())
+                .title(caseStudy.getTitle())
+                .description(caseStudy.getDescription())
+                .category(caseStudy.getCategory())
+                .level(caseStudy.getLevel())
+                .imageUrl(caseStudy.getImageUrl())
+                .contextQuote(caseStudy.getContextQuote())
+                .estimatedMinutes(caseStudy.getEstimatedMinutes())
+                .complexityStars(caseStudy.getComplexityStars())
+                .competencies(caseStudy.getCompetencies())
+                .studentStatus(status)
+                .attemptsUsed(attemptsUsed)
+                .maxAttempts(maxAttempts)
+                .blocked(blocked)
+                .resetPending(resetPending)
+                .activeAttemptId(activeAttemptId)
+                .currentQuestionIndex(currentIndex)
+                .totalQuestions(caseStudy.getQuestions().size())
+                .currentQuestion(currentQuestion)
+                .timerEnabled(caseStudy.isTimerEnabled())
+                .elapsedSeconds(elapsedSeconds)
+                .passThreshold(PASS_THRESHOLD)
+                .build();
+    }
+
     private QuestionDto toQuestionDto(Question q) {
         if (q == null) return null;
         return QuestionDto.builder()
@@ -237,6 +303,10 @@ public class SimulationService {
                 .text(q.getText())
                 .orderIndex(q.getOrderIndex())
                 .sceneImageUrl(q.getSceneImageUrl())
+                .sceneTitle(q.getSceneTitle())
+                .sceneSubtitle(q.getSceneSubtitle())
+                .sceneHint(q.getSceneHint())
+                .npcLabel(q.getNpcLabel())
                 .options(q.getOptions().stream()
                         .sorted(Comparator.comparingInt(AnswerOption::getOrderIndex))
                         .map(o -> AnswerOptionDto.builder()

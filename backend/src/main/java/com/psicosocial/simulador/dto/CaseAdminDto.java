@@ -20,4 +20,5 @@ public class CaseAdminDto {
     private List<String> competencies;
     private int questionCount;
     private long attemptsCount;
+    private boolean timerEnabled;
 }

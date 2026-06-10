@@ -16,6 +16,109 @@
       <h1 class="text-lg font-manrope font-bold">Misión Psicosocial</h1>
     </div>
 
+    <!-- Indicador de pasos (estudiantes) -->
+    <div *ngIf="view === 'access-pending' || view === 'access-code'" class="login-steps mb-4">
+      <div class="login-steps__item" [class.login-steps__item--active]="currentStep >= 1" [class.login-steps__item--done]="currentStep > 1">
+        <span>1</span>
+        <p>Credenciales</p>
+      </div>
+      <div class="login-steps__line" [class.login-steps__line--active]="currentStep > 1"></div>
+      <div class="login-steps__item" [class.login-steps__item--active]="currentStep >= 2" [class.login-steps__item--done]="currentStep > 2">
+        <span>2</span>
+        <p>Aprobación</p>
+      </div>
+      <div class="login-steps__line" [class.login-steps__line--active]="currentStep > 2"></div>
+      <div class="login-steps__item" [class.login-steps__item--active]="currentStep >= 3">
+        <span>3</span>
+        <p>Código</p>
+      </div>
+    </div>
+
+    <!-- Esperando aprobación del docente -->
+    <ng-container *ngIf="view === 'access-pending'">
+      <h2 class="text-base font-manrope font-bold mb-1 text-center">{{ success }}</h2>
+      <p class="text-xs text-center mb-4 opacity-90">{{ detail }}</p>
+
+      <div class="login-register-box p-4 rounded-lg space-y-3">
+        <div class="flex items-center justify-center gap-2 text-primary">
+          <span class="material-symbols-outlined animate-pulse">hourglass_top</span>
+          <span class="text-sm font-medium">Esperando al docente</span>
+        </div>
+        <div class="text-center space-y-1">
+          <p class="text-sm font-medium" *ngIf="studentName">{{ studentName }}</p>
+          <p class="text-xs opacity-80">{{ email }}</p>
+        </div>
+        <p class="text-xs text-center opacity-75">Se actualiza automáticamente cada pocos segundos.</p>
+      </div>
+
+      <button type="button" (click)="checkAccessStatus(true)" [disabled]="checkingStatus"
+              class="login-submit neon-btn w-full bg-primary text-on-primary py-2.5 rounded-full text-sm font-semibold mt-4 disabled:opacity-60">
+        {{ checkingStatus ? 'Verificando...' : 'Verificar ahora' }}
+      </button>
+      <button type="button" (click)="backToCredentials()" class="login-link w-full text-center text-xs hover:underline mt-3">
+        Cancelar y volver
+      </button>
+    </ng-container>
+
+    <!-- Acceso rechazado o expirado -->
+    <ng-container *ngIf="view === 'access-denied'">
+      <h2 class="text-base font-manrope font-bold mb-1 text-center text-error">{{ success }}</h2>
+      <p class="text-xs text-center mb-4 opacity-90">{{ detail }}</p>
+      <div class="login-register-box p-4 rounded-lg text-center">
+        <span class="material-symbols-outlined text-4xl text-error mb-2">block</span>
+        <p class="text-sm">No puedes ingresar con este acceso. Solicita uno nuevo a tu docente.</p>
+      </div>
+      <button type="button" (click)="retryAccessRequest()"
+              class="login-submit neon-btn w-full bg-primary text-on-primary py-2.5 rounded-full text-sm font-semibold mt-4">
+        Solicitar acceso nuevamente
+      </button>
+      <button type="button" (click)="backToCredentials()" class="login-link w-full text-center text-xs hover:underline mt-3">
+        Volver al inicio de sesión
+      </button>
+    </ng-container>
+
+    <!-- Código de acceso -->
+    <ng-container *ngIf="view === 'access-code'">
+      <h2 class="text-base font-manrope font-bold mb-1 text-center">{{ success }}</h2>
+      <p class="text-xs text-center mb-3 opacity-90">{{ detail || codeHint }}</p>
+
+      <div class="login-register-box p-3 rounded-lg mb-3 text-center" *ngIf="studentName">
+        <p class="text-sm font-medium">{{ studentName }}</p>
+        <p class="text-xs opacity-80">{{ email }}</p>
+        <p class="text-xs mt-2 text-primary" *ngIf="expiresAt">
+          Código válido hasta {{ expiresAt }} ({{ expiresInMinutes }} min restantes)
+        </p>
+      </div>
+
+      <form (ngSubmit)="verifyAccessCode()" class="space-y-3">
+        <div>
+          <label class="block text-sm font-medium mb-1">Código de 6 dígitos</label>
+          <input type="text" inputmode="numeric" [(ngModel)]="accessCode" (ngModelChange)="onCodeInput()"
+                 name="accessCode" maxlength="6" autocomplete="one-time-code"
+                 class="login-input w-full rounded-lg px-3 py-2.5 text-sm outline-none text-center tracking-[0.35em]"
+                 placeholder="000000" required />
+          <p class="text-[11px] mt-1.5 opacity-75 text-center">{{ codeHint }}</p>
+        </div>
+
+        <p *ngIf="error" class="text-sm login-error px-3 py-2 rounded-lg">{{ error }}</p>
+
+        <button type="submit" [disabled]="loading || transitioning || accessCode.length !== 6"
+                class="login-submit neon-btn w-full bg-primary text-on-primary py-2.5 rounded-full text-sm font-semibold disabled:opacity-60">
+          {{ loading ? 'Validando...' : 'Validar y entrar al simulador' }}
+        </button>
+
+        <button *ngIf="error && (error.includes('expir') || error.includes('rechaz') || error.includes('Sesión'))"
+                type="button" (click)="retryAccessRequest()"
+                class="login-register-btn w-full py-2 rounded-full text-sm font-semibold">
+          Solicitar acceso nuevamente
+        </button>
+
+        <button type="button" (click)="backToCredentials()" class="login-link w-full text-center text-xs hover:underline">
+          Cancelar y volver
+        </button>
+      </form>
+    </ng-container>
+
     <!-- Iniciar sesión -->
     <ng-container *ngIf="view === 'login'">
       <h2 class="text-base font-manrope font-bold mb-3 text-center">Iniciar sesión</h2>
@@ -51,10 +154,14 @@
 
         <button type="submit" [disabled]="loading || transitioning"
                 class="login-submit neon-btn w-full bg-primary text-on-primary py-2.5 rounded-full text-sm font-semibold flex items-center justify-center gap-2 hover:bg-primary-container transition-all active:scale-[0.98] disabled:opacity-60">
-          {{ loading || transitioning ? 'Ingresando...' : 'Entrar al simulador' }}
+          {{ loading || transitioning ? 'Verificando...' : 'Continuar' }}
           <span class="material-symbols-outlined text-lg">arrow_forward</span>
         </button>
       </form>
+
+      <p class="text-[11px] text-center mt-2 opacity-75 px-1">
+        Estudiantes: primero validan credenciales, el docente aprueba y luego ingresan un código temporal.
+      </p>
 
       <ng-container *ngTemplateOutlet="socialAuth"></ng-container>
 

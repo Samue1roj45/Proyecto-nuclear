@@ -15,4 +15,7 @@ public class ReportsSummaryDto {
     private double avgClinical;
     private double avgNormative;
     private List<AttemptSummaryDto> attempts;
+    private long totalAttempts;
+    private int page;
+    private int pageSize;
 }

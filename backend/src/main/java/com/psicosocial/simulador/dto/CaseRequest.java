@@ -15,4 +15,5 @@ public class CaseRequest {
     private Integer estimatedMinutes;
     private Double complexityStars;
     private List<String> competencies;
+    private Boolean timerEnabled;
 }

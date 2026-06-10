@@ -22,8 +22,11 @@ export class CaseSimulatorComponent implements OnInit {
 
   caseDetail: CaseDetail | null = null;
   loading = true;
+  loadError = '';
   message = '';
   launched = false;
+  previewMode = false;
+  previewQuestions: import('../../models').Question[] = [];
 
   get isAdmin(): boolean {
     return this.auth.isAdmin();
@@ -32,25 +35,66 @@ export class CaseSimulatorComponent implements OnInit {
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
       this.launched = false;
+      this.previewMode = this.route.snapshot.queryParams['preview'] === 'true';
       this.loadCase(+params['id']);
+    });
+    this.route.queryParams.subscribe((qp) => {
+      this.previewMode = qp['preview'] === 'true';
     });
   }
 
   loadCase(id: number): void {
     this.loading = true;
+    this.loadError = '';
     this.api.getCase(id).subscribe({
       next: (data) => {
         this.caseDetail = data;
         this.loading = false;
+        if (this.previewMode && this.isAdmin) {
+          this.api.getCaseQuestions(id).subscribe({
+            next: (qs) => {
+              this.previewQuestions = qs.map((q) => ({
+                id: q.id,
+                text: q.text,
+                orderIndex: q.orderIndex,
+                sceneImageUrl: q.sceneImageUrl,
+                sceneTitle: q.sceneTitle,
+                sceneSubtitle: q.sceneSubtitle,
+                sceneHint: q.sceneHint,
+                npcLabel: q.npcLabel,
+                options: q.options.map((o) => ({ id: o.id ?? 0, text: o.text, orderIndex: o.orderIndex })),
+              }));
+            },
+          });
+        }
       },
-      error: () => (this.loading = false),
+      error: (err) => {
+        this.loading = false;
+        this.loadError = err.error?.message || 'No se pudo cargar el caso';
+      },
     });
+  }
+
+  canLaunch(): boolean {
+    if (!this.caseDetail) return false;
+    if (this.previewMode && this.isAdmin) return true;
+    if (this.caseDetail.blocked && !this.isAdmin) return false;
+    if (this.caseDetail.studentStatus === 'PASSED' && !this.isAdmin) return false;
+    return true;
   }
 
   launchSimulation(): void {
     if (!this.caseDetail) return;
+    if (this.previewMode && this.isAdmin) {
+      this.launched = true;
+      return;
+    }
     if (this.caseDetail.blocked && !this.isAdmin) {
       this.toast.error('Caso bloqueado. Solicita reinicio al profesor.');
+      return;
+    }
+    if (this.caseDetail.studentStatus === 'PASSED' && !this.isAdmin) {
+      this.toast.error('Ya aprobaste este caso. Solicita reinicio al profesor.');
       return;
     }
     if (this.caseDetail.activeAttemptId) {

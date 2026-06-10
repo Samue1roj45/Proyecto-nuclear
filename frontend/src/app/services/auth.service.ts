@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { AuthUser } from '../models';
+import { AccessStatusResponse, AuthUser, LoginStepResponse } from '../models/access-flow';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -16,12 +16,19 @@ export class AuthService {
   ) {}
 
   login(email: string, password: string) {
-    return this.http.post<AuthUser>(`${environment.apiUrl}/auth/login`, { email, password }).pipe(
-      tap((user) => {
-        localStorage.setItem(this.storageKey, JSON.stringify(user));
-        this.currentUser.set(user);
-      })
-    );
+    return this.http.post<LoginStepResponse>(`${environment.apiUrl}/auth/login`, { email, password });
+  }
+
+  verifyAccessCode(email: string, code: string, accessSession: string) {
+    return this.http
+      .post<AuthUser>(`${environment.apiUrl}/auth/verify-access-code`, { email, code, accessSession })
+      .pipe(tap((user) => this.storeAuth(user)));
+  }
+
+  getAccessStatus(accessSession: string, email: string) {
+    return this.http.get<AccessStatusResponse>(`${environment.apiUrl}/auth/access-status`, {
+      params: { accessSession, email },
+    });
   }
 
   register(fullName: string, email: string, password: string) {
@@ -33,28 +40,15 @@ export class AuthService {
   }
 
   forgotPassword(email: string) {
-    return this.http.post<{ message: string }>(
-      `${environment.apiUrl}/auth/forgot-password`,
-      { email }
-    );
+    return this.http.post<{ message: string }>(`${environment.apiUrl}/auth/forgot-password`, { email });
   }
 
   oauthGoogle(code: string) {
-    return this.http.post<AuthUser>(`${environment.apiUrl}/auth/oauth/google`, { code }).pipe(
-      tap((user) => {
-        localStorage.setItem(this.storageKey, JSON.stringify(user));
-        this.currentUser.set(user);
-      })
-    );
+    return this.http.post<LoginStepResponse>(`${environment.apiUrl}/auth/oauth/google`, { code });
   }
 
   oauthFacebook(accessToken: string) {
-    return this.http.post<AuthUser>(`${environment.apiUrl}/auth/oauth/facebook`, { accessToken }).pipe(
-      tap((user) => {
-        localStorage.setItem(this.storageKey, JSON.stringify(user));
-        this.currentUser.set(user);
-      })
-    );
+    return this.http.post<LoginStepResponse>(`${environment.apiUrl}/auth/oauth/facebook`, { accessToken });
   }
 
   resetPassword(email: string, resetCode: string, newPassword: string) {
@@ -63,6 +57,11 @@ export class AuthService {
       resetCode,
       newPassword,
     });
+  }
+
+  storeAuth(user: AuthUser): void {
+    localStorage.setItem(this.storageKey, JSON.stringify(user));
+    this.currentUser.set(user);
   }
 
   logout(): void {

@@ -11,4 +11,5 @@ public class CreateGroupRequest {
     private String name;
     private String description;
     private List<Long> studentIds;
+    private List<Long> caseIds;
 }

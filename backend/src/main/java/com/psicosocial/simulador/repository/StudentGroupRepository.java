@@ -21,4 +21,13 @@ public interface StudentGroupRepository extends JpaRepository<StudentGroup, Long
 
     @Query("SELECT DISTINCT g FROM StudentGroup g JOIN g.members m WHERE m.id = :userId")
     List<StudentGroup> findAllByMemberId(@Param("userId") Long userId);
+
+    @Query("SELECT DISTINCT g FROM StudentGroup g LEFT JOIN FETCH g.members LEFT JOIN FETCH g.assignedCases WHERE g.id = :id")
+    Optional<StudentGroup> findByIdWithMembersAndCases(@Param("id") Long id);
+
+    @Query("SELECT DISTINCT g FROM StudentGroup g LEFT JOIN FETCH g.members LEFT JOIN FETCH g.assignedCases ORDER BY g.name ASC")
+    List<StudentGroup> findAllWithMembersAndCases();
+
+    @Query("SELECT DISTINCT g FROM StudentGroup g JOIN g.assignedCases c WHERE c.id = :caseId")
+    List<StudentGroup> findAllByAssignedCaseId(@Param("caseId") Long caseId);
 }

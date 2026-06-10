@@ -4,12 +4,10 @@ import com.psicosocial.simulador.dto.*;
 import com.psicosocial.simulador.model.*;
 import com.psicosocial.simulador.repository.PasswordResetTokenRepository;
 import com.psicosocial.simulador.repository.UserRepository;
-import com.psicosocial.simulador.security.CustomUserDetailsService;
-import com.psicosocial.simulador.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,30 +21,46 @@ import java.util.concurrent.ThreadLocalRandom;
 public class AuthService {
 
     private final AuthenticationManager authenticationManager;
-    private final JwtService jwtService;
-    private final CustomUserDetailsService userDetailsService;
     private final UserRepository userRepository;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final NotificationService notificationService;
     private final EmailService emailService;
     private final OAuthService oauthService;
+    private final StudentAccessService studentAccessService;
 
-    public AuthResponse login(LoginRequest request) {
+    private static final String INVALID_CREDENTIALS = "Correo o contraseña incorrectos";
+
+    public LoginStepResponse login(LoginRequest request) {
         String email = request.getEmail().trim().toLowerCase();
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Credenciales inválidas"));
 
-        if (user.getAuthProvider() != AuthProvider.LOCAL) {
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user != null && user.getAuthProvider() != AuthProvider.LOCAL) {
             throw new RuntimeException("Esta cuenta usa inicio con "
                     + providerLabel(user.getAuthProvider()) + ". Usa ese método para entrar.");
         }
 
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(email, request.getPassword())
-        );
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(email, request.getPassword())
+            );
+        } catch (BadCredentialsException ex) {
+            throw new RuntimeException(INVALID_CREDENTIALS);
+        }
 
-        return buildAuthResponse(user);
+        user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException(INVALID_CREDENTIALS));
+
+        if (user.getRole() == UserRole.ADMIN) {
+            return LoginStepResponse.builder()
+                    .step(LoginStep.DIRECT_ACCESS)
+                    .message("Acceso concedido")
+                    .email(user.getEmail())
+                    .auth(studentAccessService.buildAuthResponse(user))
+                    .build();
+        }
+
+        return studentAccessService.beginStudentAccess(user);
     }
 
     @Transactional
@@ -68,24 +82,32 @@ public class AuthService {
         userRepository.save(user);
 
         notificationService.notify(user, "Cuenta creada",
-                "Tu registro fue exitoso. Ya puedes iniciar sesión y comenzar los casos.",
-                NotificationType.ACCOUNT, "/dashboard");
+                "Tu registro fue exitoso. Al iniciar sesión, tu docente debe aprobar tu acceso y recibirás un código temporal.",
+                NotificationType.ACCOUNT, "/login");
 
         return MessageResponse.builder()
-                .message("Cuenta creada correctamente. Ya puedes iniciar sesión.")
+                .message("Cuenta creada. Al iniciar sesión, tu docente aprobará tu acceso y te dará un código de 6 dígitos.")
                 .build();
     }
 
     @Transactional
-    public AuthResponse loginWithGoogle(OAuthGoogleRequest request) {
+    public LoginStepResponse loginWithGoogle(OAuthGoogleRequest request) {
         OAuthService.OAuthProfile profile = oauthService.verifyGoogleCode(request.getCode());
         return oauthLogin(AuthProvider.GOOGLE, profile);
     }
 
     @Transactional
-    public AuthResponse loginWithFacebook(OAuthFacebookRequest request) {
+    public LoginStepResponse loginWithFacebook(OAuthFacebookRequest request) {
         OAuthService.OAuthProfile profile = oauthService.verifyFacebookToken(request.getAccessToken());
         return oauthLogin(AuthProvider.FACEBOOK, profile);
+    }
+
+    public AuthResponse verifyAccessCode(VerifyAccessCodeRequest request) {
+        return studentAccessService.verifyAccessCode(request);
+    }
+
+    public AccessStatusResponse getAccessStatus(String accessSession, String email) {
+        return studentAccessService.getAccessStatus(accessSession, email);
     }
 
     @Transactional
@@ -147,7 +169,7 @@ public class AuthService {
                 .build();
     }
 
-    private AuthResponse oauthLogin(AuthProvider provider, OAuthService.OAuthProfile profile) {
+    private LoginStepResponse oauthLogin(AuthProvider provider, OAuthService.OAuthProfile profile) {
         User user = userRepository.findByAuthProviderAndProviderId(provider, profile.providerId())
                 .orElseGet(() -> userRepository.findByEmail(profile.email())
                         .map(existing -> linkOAuthAccount(existing, provider, profile))
@@ -157,7 +179,16 @@ public class AuthService {
             throw new RuntimeException("Tu cuenta está deshabilitada. Contacta al profesor.");
         }
 
-        return buildAuthResponse(user);
+        if (user.getRole() == UserRole.ADMIN) {
+            return LoginStepResponse.builder()
+                    .step(LoginStep.DIRECT_ACCESS)
+                    .message("Acceso concedido")
+                    .email(user.getEmail())
+                    .auth(studentAccessService.buildAuthResponse(user))
+                    .build();
+        }
+
+        return studentAccessService.beginStudentAccess(user);
     }
 
     private User createOAuthUser(AuthProvider provider, OAuthService.OAuthProfile profile) {
@@ -192,20 +223,6 @@ public class AuthService {
         }
         userRepository.save(user);
         return user;
-    }
-
-    private AuthResponse buildAuthResponse(User user) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
-        String token = jwtService.generateToken(userDetails);
-
-        return AuthResponse.builder()
-                .token(token)
-                .id(user.getId())
-                .fullName(user.getFullName())
-                .email(user.getEmail())
-                .role(user.getRole())
-                .avatarUrl(user.getAvatarUrl())
-                .build();
     }
 
     private String resolveOAuthAvatar(String avatarUrl) {

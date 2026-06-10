@@ -1,0 +1,61 @@
+<div
+  *ngIf="modal.modal() as m"
+  class="modal-overlay fixed inset-0 z-[200] flex items-center justify-center p-4"
+  (click)="modal.cancel()"
+>
+  <div
+    class="modal-panel rounded-2xl w-full max-w-md p-6"
+    [class.modal-panel--danger]="m.variant === 'danger'"
+    role="alertdialog"
+    aria-modal="true"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="flex items-start gap-4">
+      <div
+        class="modal-panel__icon shrink-0 w-11 h-11 rounded-full flex items-center justify-center"
+        [class.modal-panel__icon--danger]="m.variant === 'danger'"
+        [class.modal-panel__icon--warning]="m.variant === 'warning'"
+        [class.modal-panel__icon--success]="m.variant === 'success'"
+        [class.modal-panel__icon--error]="m.variant === 'error'"
+        [class.modal-panel__icon--info]="m.variant === 'info' || m.variant === 'default'"
+      >
+        <span class="material-symbols-outlined text-2xl">{{ iconFor(m.variant) }}</span>
+      </div>
+
+      <div class="flex-1 min-w-0 pt-0.5">
+        <h3 class="modal-panel__title text-lg font-manrope font-semibold mb-2">{{ m.title }}</h3>
+        <p class="modal-panel__message text-sm leading-relaxed">{{ m.message }}</p>
+
+        <input
+          *ngIf="m.type === 'prompt'"
+          type="text"
+          class="modal-panel__input w-full mt-4 rounded-lg px-4 py-2.5 text-sm outline-none"
+          [placeholder]="m.inputPlaceholder"
+          [ngModel]="m.inputValue"
+          (ngModelChange)="modal.updateInput($event)"
+          (keydown.enter)="modal.accept()"
+        />
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-3 mt-6">
+      <button
+        *ngIf="!isSingleAction(m.type)"
+        type="button"
+        (click)="modal.cancel()"
+        class="modal-panel__btn modal-panel__btn--cancel px-5 py-2.5 rounded-lg text-sm font-medium"
+      >
+        {{ m.cancelLabel }}
+      </button>
+      <button
+        type="button"
+        (click)="modal.accept()"
+        class="modal-panel__btn neon-btn px-5 py-2.5 rounded-lg text-sm font-medium"
+        [class.modal-panel__btn--danger]="m.variant === 'danger'"
+        [class.modal-panel__btn--confirm]="m.variant !== 'danger'"
+      >
+        {{ m.confirmLabel }}
+      </button>
+    </div>
+  </div>
+</div>

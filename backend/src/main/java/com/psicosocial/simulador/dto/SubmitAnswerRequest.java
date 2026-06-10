@@ -6,4 +6,5 @@ import lombok.Data;
 public class SubmitAnswerRequest {
     private Long questionId;
     private Long optionId;
+    private Integer elapsedSeconds;
 }

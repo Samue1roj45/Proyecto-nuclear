@@ -8,5 +8,8 @@ public enum NotificationType {
     RESET_REQUEST,
     RESET_APPROVED,
     CASE_COMPLETED,
-    ACCOUNT
+    ACCOUNT,
+    ACCESS_REQUEST,
+    ACCESS_APPROVED,
+    ACCESS_REJECTED
 }

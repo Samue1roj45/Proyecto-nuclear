@@ -25,7 +25,7 @@ public class ReportsService {
             DateTimeFormatter.ofPattern("dd/MM/yyyy, h:mm a", new Locale("es", "CO"));
 
     @Transactional(readOnly = true)
-    public ReportsSummaryDto getReports(User requester, String search, String status, String sort) {
+    public ReportsSummaryDto getReports(User requester, String search, String status, String sort, int page, int pageSize) {
         boolean studentScope = requester.getRole() == UserRole.STUDENT;
         List<Attempt> attempts = filterAttempts(requester, studentScope, search, status);
 
@@ -36,9 +36,14 @@ public class ReportsService {
             default -> Comparator.comparing(Attempt::getStartedAt).reversed();
         };
 
-        List<AttemptSummaryDto> list = attempts.stream()
-                .sorted(comparator)
-                .limit(50)
+        List<Attempt> sorted = attempts.stream().sorted(comparator).toList();
+        long filteredTotal = sorted.size();
+        int safePage = Math.max(0, page);
+        int safeSize = Math.min(Math.max(1, pageSize), 100);
+
+        List<AttemptSummaryDto> list = sorted.stream()
+                .skip((long) safePage * safeSize)
+                .limit(safeSize)
                 .map(this::toSummary)
                 .toList();
 
@@ -46,7 +51,7 @@ public class ReportsService {
         double avgEthical;
         double avgNormative;
         long passed;
-        long total;
+        long totalFinished;
         long casesAttempted;
 
         if (studentScope) {
@@ -55,7 +60,7 @@ public class ReportsService {
             avgEthical = own.stream().mapToDouble(Attempt::getEthicalScore).average().orElse(0);
             avgNormative = own.stream().mapToDouble(Attempt::getNormativeScore).average().orElse(0);
             passed = own.stream().filter(a -> a.getStatus() == AttemptStatus.PASSED).count();
-            total = own.size();
+            totalFinished = own.size();
             casesAttempted = own.stream().map(a -> a.getCaseStudy().getId()).distinct().count();
         } else {
             Double c = attemptRepository.averageClinicalScore();
@@ -65,23 +70,51 @@ public class ReportsService {
             avgEthical = e != null ? e : 0;
             avgNormative = n != null ? n : 0;
             passed = attemptRepository.countByStatus(AttemptStatus.PASSED);
-            total = passed
+            totalFinished = passed
                     + attemptRepository.countByStatus(AttemptStatus.FAILED)
                     + attemptRepository.countByStatus(AttemptStatus.BLOCKED);
             casesAttempted = attemptRepository.countDistinctCasesAttempted();
         }
 
-        double approvalRate = total > 0 ? (passed * 100.0 / total) : 0;
+        double approvalRate = totalFinished > 0 ? (passed * 100.0 / totalFinished) : 0;
+        double approvalChange = computeApprovalChange(requester, studentScope);
 
         return ReportsSummaryDto.builder()
                 .approvalRate(round(approvalRate))
-                .approvalChange(0)
+                .approvalChange(round(approvalChange))
                 .casesAttempted(casesAttempted)
                 .avgEthical(round(avgEthical))
                 .avgClinical(round(avgClinical))
                 .avgNormative(round(avgNormative))
                 .attempts(list)
+                .totalAttempts(filteredTotal)
+                .page(safePage)
+                .pageSize(safeSize)
                 .build();
+    }
+
+    private double computeApprovalChange(User requester, boolean studentScope) {
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        java.time.LocalDateTime weekAgo = now.minusDays(7);
+        java.time.LocalDateTime twoWeeksAgo = now.minusDays(14);
+
+        List<Attempt> recent = attemptRepository.findAllByOrderByStartedAtDesc().stream()
+                .filter(a -> a.getStatus() != AttemptStatus.IN_PROGRESS)
+                .filter(a -> !studentScope || a.getUser().getId().equals(requester.getId()))
+                .filter(a -> a.getCompletedAt() != null)
+                .toList();
+
+        double thisWeek = approvalRate(recent.stream().filter(a -> !a.getCompletedAt().isBefore(weekAgo)).toList());
+        double lastWeek = approvalRate(recent.stream()
+                .filter(a -> !a.getCompletedAt().isBefore(twoWeeksAgo) && a.getCompletedAt().isBefore(weekAgo))
+                .toList());
+        return thisWeek - lastWeek;
+    }
+
+    private double approvalRate(List<Attempt> attempts) {
+        if (attempts.isEmpty()) return 0;
+        long passed = attempts.stream().filter(a -> a.getStatus() == AttemptStatus.PASSED).count();
+        return passed * 100.0 / attempts.size();
     }
 
     @Transactional(readOnly = true)

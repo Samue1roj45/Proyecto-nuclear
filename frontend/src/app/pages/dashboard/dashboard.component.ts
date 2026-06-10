@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
 import { CaseCard, StudentDashboard } from '../../models';
 import { studentCaseStatusLabel } from '../../utils/status-labels';
 
@@ -17,6 +18,7 @@ export class DashboardComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private auth = inject(AuthService);
+  private toast = inject(ToastService);
 
   get isAdmin(): boolean {
     return this.auth.isAdmin();
@@ -43,7 +45,10 @@ export class DashboardComponent implements OnInit {
         this.dashboard = data;
         this.loading = false;
       },
-      error: () => (this.loading = false),
+      error: (err) => {
+        this.loading = false;
+        this.toast.error(err.error?.message || 'No se pudo cargar el panel');
+      },
     });
   }
 

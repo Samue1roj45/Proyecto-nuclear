@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ApiService } from '../../services/api.service';
+import { ConfirmDialogService } from '../../services/confirm-dialog.service';
 import { ToastService } from '../../services/toast.service';
 import { CreateUserRequest, UserDto } from '../../models';
 import { GlassSelectComponent } from '../../components/glass-select/glass-select.component';
@@ -19,6 +20,7 @@ export class UsersComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private toast = inject(ToastService);
+  private confirmDialog = inject(ConfirmDialogService);
 
   users: UserDto[] = [];
   loading = true;
@@ -141,11 +143,16 @@ export class UsersComponent implements OnInit {
     });
   }
 
-  resetAttempts(u: UserDto): void {
-    const msg =
-      `¿Reiniciar TODOS los intentos de ${u.fullName} en todos los casos?\n\n` +
-      'También se aprobarán las solicitudes de reinicio pendientes de este estudiante.';
-    if (!confirm(msg)) return;
+  async resetAttempts(u: UserDto): Promise<void> {
+    const confirmed = await this.confirmDialog.confirm({
+      title: 'Reiniciar intentos',
+      message:
+        `¿Reiniciar TODOS los intentos de ${u.fullName} en todos los casos?\n\n` +
+        'También se aprobarán las solicitudes de reinicio pendientes de este estudiante.',
+      confirmLabel: 'Reiniciar',
+      variant: 'warning',
+    });
+    if (!confirmed) return;
     this.api.resetUserAttempts(u.id).subscribe({
       next: () => {
         this.toast.success('Todos los intentos reiniciados para ' + u.fullName);
@@ -166,8 +173,14 @@ export class UsersComponent implements OnInit {
     });
   }
 
-  remove(u: UserDto): void {
-    if (!confirm(`¿Eliminar a ${u.fullName}? Esta acción no se puede deshacer.`)) return;
+  async remove(u: UserDto): Promise<void> {
+    const confirmed = await this.confirmDialog.confirm({
+      title: 'Eliminar usuario',
+      message: `¿Eliminar a ${u.fullName}? Esta acción no se puede deshacer.`,
+      confirmLabel: 'Eliminar',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
     this.api.deleteUser(u.id).subscribe({
       next: () => {
         this.toast.success('Usuario eliminado');

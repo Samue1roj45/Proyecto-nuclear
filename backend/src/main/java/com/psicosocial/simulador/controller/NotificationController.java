@@ -6,9 +6,12 @@ import com.psicosocial.simulador.model.User;
 import com.psicosocial.simulador.security.CustomUserDetailsService;
 import com.psicosocial.simulador.service.NotificationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import com.psicosocial.simulador.service.NotificationStreamService;
 
 import java.util.List;
 import java.util.Map;
@@ -20,6 +23,7 @@ import java.util.Map;
 public class NotificationController {
 
     private final NotificationService notificationService;
+    private final NotificationStreamService notificationStreamService;
     private final CustomUserDetailsService userDetailsService;
 
     private User current(Authentication auth) {
@@ -37,6 +41,11 @@ public class NotificationController {
     @GetMapping("/unread-count")
     public ResponseEntity<Map<String, Long>> unreadCount(Authentication auth) {
         return ResponseEntity.ok(Map.of("count", notificationService.unreadCount(current(auth))));
+    }
+
+    @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter stream(Authentication auth) {
+        return notificationStreamService.subscribe(current(auth));
     }
 
     @PatchMapping("/{id}/read")

@@ -373,4 +373,38 @@
   display: flex;
   gap: 0.75rem;
   margin-top: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.case-game-badge--timer { display: inline-flex; align-items: center; gap: 0.25rem; }
+.case-game-progress { width: 60px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 2px; overflow: hidden; }
+.case-game-progress__fill { height: 100%; background: #5eeaff; transition: width 0.3s; }
+.case-game-preview-badge { font-size: 0.75rem; color: #ffd166; margin: 0.5rem 0; }
+.case-game-mobile-controls { display: none; position: absolute; bottom: 1rem; right: 1rem; flex-direction: column; align-items: center; gap: 0.25rem; z-index: 5;
+  @media (max-width: 768px) { display: flex; }
+  button { width: 44px; height: 44px; border-radius: 50%; background: rgba(0,0,0,0.6); border: 1px solid rgba(94,234,255,0.4); color: #fff; display: flex; align-items: center; justify-content: center; }
+  &__row { display: flex; gap: 0.25rem; }
+}
+.case-game-mobile-respond { background: rgba(94,234,255,0.3) !important; }
+.case-game-feedback { text-align: center; max-width: 420px; }
+.case-game-feedback__category { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.7rem; background: rgba(94,234,255,0.2); margin-bottom: 0.5rem; }
+.case-game-feedback__correct { font-size: 0.8rem; opacity: 0.9; margin-top: 0.5rem; }
+.text-pass { color: #7ee787 !important; }
+.text-fail { color: #ff8a8a !important; }
+.case-game-scores { display: flex; gap: 1.5rem; align-items: center; margin: 1rem 0; flex-wrap: wrap; justify-content: center; }
+.case-game-score-ring { text-align: center; }
+.case-game-score-ring__value { display: block; font-size: 2rem; font-weight: 700; color: #5eeaff; }
+.case-game-score-ring__label { font-size: 0.75rem; opacity: 0.8; }
+.case-game-score-bars { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 0.5rem; }
+.case-game-score-bar { display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem;
+  .bar { flex: 1; height: 6px; background: rgba(255,255,255,0.15); border-radius: 3px; overflow: hidden;
+    div { height: 100%; background: linear-gradient(90deg, #5eeaff, #00d4f0); border-radius: 3px; }
+  }
+}
+.case-game-secondary { padding: 0.6rem 1.2rem; border-radius: 0.5rem; border: 1px solid rgba(255,255,255,0.3); background: transparent; color: #fff; cursor: pointer; }
+.case-game-link-btn { text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; }
+@media (prefers-reduced-motion: reduce) {
+  .case-game-progress__fill { transition: none; }
+  .animate-spin { animation: none; }
 }
