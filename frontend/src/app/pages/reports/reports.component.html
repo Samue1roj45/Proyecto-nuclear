@@ -7,9 +7,9 @@
         {{ isAdmin ? 'Gestión, seguimiento y análisis de los intentos académicos de los estudiantes.' : 'Consulta el desempeño y la retroalimentación de tus propios intentos.' }}
       </p>
     </div>
-    <button *ngIf="isAdmin" (click)="exportAll()" class="neon-btn bg-primary text-on-primary px-6 py-2.5 rounded-lg flex items-center gap-2 text-sm font-medium hover:opacity-90 transition-opacity">
-      <span class="material-symbols-outlined text-xl">download</span>
-      Exportar Todo
+    <button (click)="exportAll()" class="neon-btn bg-primary text-on-primary px-6 py-2.5 rounded-lg flex items-center gap-2 text-sm font-medium hover:opacity-90 transition-opacity">
+      <span class="material-symbols-outlined text-xl">picture_as_pdf</span>
+      Exportar PDF
     </button>
   </div>
 
@@ -108,7 +108,7 @@
       </div>
 
       <!-- Detail -->
-      <div class="glass-card attempt-detail rounded-xl p-8 shadow-md" *ngIf="selectedAttempt">
+      <div id="attempt-detail-panel" class="glass-card attempt-detail rounded-xl p-8 shadow-md" *ngIf="selectedAttempt">
         <div class="flex items-start justify-between mb-8">
           <div>
             <h3 class="text-2xl font-manrope font-semibold text-primary">Detalle del Intento</h3>
@@ -226,19 +226,210 @@
         </div>
       </div>
 
-      <div class="rounded-xl overflow-hidden shadow-sm h-48 relative border border-outline-variant">
+      <button
+        type="button"
+        (click)="openAcademicFocus()"
+        class="academic-banner group w-full rounded-xl overflow-hidden shadow-sm h-48 relative border border-outline-variant text-left cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/40"
+        aria-label="Ver criterios de evaluación académica"
+      >
         <img
           src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdMtugouuNQ6LQMymRf_0DD6xMRPQ7HE8WvPNCZOpbeys2PFGxHA4M3Ye0ZOUsEx3IyHI4xYS78cUQCPkdLVMXO8BLic7XZMDuR_ur_0AfmrwrH3XsMaKhxKGHmrPvjYMsrmJZ5rsQoh-WxUD_eG_DJa0gTqdnsQz142dJrMO9ikhIvFxpcPbp9YCFqFmhFWWR554vuwtgPVtYZMGSXmITWS4lrfujMcQMQUYxL07zUzUlzFniskYs-f1sn1OBkAmSAiPo5j7CnZA"
-          class="w-full h-full object-cover grayscale-[0.2] hover:grayscale-0 transition-all duration-700"
+          class="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 transition-all duration-700"
           alt="Consultorio"
         />
-        <div class="absolute inset-0 bg-gradient-to-t from-on-tertiary-fixed/80 to-transparent flex flex-col justify-end p-4">
-          <p class="text-on-primary text-xs font-bold uppercase tracking-widest">Enfoque Académico</p>
-          <p class="text-on-primary/80 text-xs">Formando profesionales con rigor ético.</p>
+        <div class="absolute top-3 right-3 flex flex-col items-end gap-1.5 z-10" *ngIf="reports.casesAttempted > 0">
+          <span
+            class="academic-banner__badge px-2.5 py-1 rounded-full text-[11px] font-bold"
+            [class.academic-banner__badge--pass]="meetsPassThreshold()"
+            [class.academic-banner__badge--warn]="!meetsPassThreshold()"
+          >
+            {{ overallAverage() }}% general
+          </span>
+          <span class="academic-banner__chip px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase" *ngIf="weakestDimension() as weakest">
+            Refuerzo: {{ weakest.label }}
+          </span>
         </div>
-      </div>
+        <div class="academic-banner__panel absolute inset-x-0 bottom-0 flex flex-col justify-end p-4">
+          <p class="academic-banner__title text-xs font-bold uppercase tracking-widest">Enfoque Académico</p>
+          <p class="academic-banner__text text-xs">{{ academicBannerSubtitle() }}</p>
+          <span class="academic-banner__cta mt-2 inline-flex items-center gap-1 text-[11px] font-semibold">
+            Ver plan de mejora académica
+            <span class="material-symbols-outlined text-sm">arrow_forward</span>
+          </span>
+        </div>
+      </button>
     </div>
   </div>
 </div>
 
 <div *ngIf="loading" class="p-12 text-center text-on-surface-variant">Cargando reportes...</div>
+
+<div
+  *ngIf="showAcademicModal && reports"
+  class="academic-modal-backdrop fixed inset-0 z-[90] flex items-center justify-center p-4"
+  (click)="closeAcademicFocus()"
+>
+  <div class="academic-modal rounded-2xl shadow-2xl w-full max-w-2xl p-6" (click)="$event.stopPropagation()">
+    <div class="flex justify-between items-start gap-4 mb-5">
+      <div>
+        <p class="academic-modal__eyebrow text-xs uppercase tracking-widest font-semibold">Enfoque Académico</p>
+        <h3 class="academic-modal__title text-2xl font-manrope font-semibold mt-1">Criterios de evaluación</h3>
+        <p class="academic-modal__subtitle text-sm mt-2">
+          {{ isAdmin
+            ? 'Marco pedagógico para interpretar el desempeño de los estudiantes en el simulador.'
+            : 'Así se evalúa tu desempeño en cada caso del simulador.' }}
+        </p>
+      </div>
+      <button type="button" (click)="closeAcademicFocus()" class="academic-modal__close">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div
+      *ngIf="weakestDimension() as weakest"
+      class="academic-modal__alert rounded-xl p-4 mb-5 border"
+      [class.academic-modal__alert--pass]="meetsPassThreshold()"
+      [class.academic-modal__alert--warn]="!meetsPassThreshold()"
+    >
+      <div class="flex items-start gap-3">
+        <span class="material-symbols-outlined text-xl mt-0.5">
+          {{ meetsPassThreshold() ? 'verified' : 'lightbulb' }}
+        </span>
+        <div>
+          <p class="academic-modal__label text-sm font-semibold">
+            {{ meetsPassThreshold() ? 'Desempeño dentro del umbral académico' : 'Área prioritaria de refuerzo' }}
+          </p>
+          <p class="academic-modal__muted text-xs mt-1">
+            {{ meetsPassThreshold()
+              ? 'Mantén tu nivel en ' + (strongestDimension()?.label?.toLowerCase() || 'todas las dimensiones') + ' y revisa los casos con menor puntaje.'
+              : 'Tu dimensión más baja es ' + weakest.label + ' (' + weakest.score + '%). ' + weakest.tip }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="academic-modal__card rounded-xl p-4 mb-5">
+      <div class="flex items-center justify-between gap-3 mb-2">
+        <p class="academic-modal__label text-sm font-semibold">Progreso hacia la aprobación</p>
+        <p class="text-sm font-bold" [class.academic-modal__score--pass]="meetsPassThreshold()" [class.academic-modal__score--warn]="!meetsPassThreshold()">
+          {{ passProgress() }}%
+        </p>
+      </div>
+      <div class="academic-modal__progress-track">
+        <div
+          class="academic-modal__progress-fill"
+          [style.width.%]="passProgress()"
+          [class.academic-modal__progress-fill--pass]="meetsPassThreshold()"
+          [class.academic-modal__progress-fill--warn]="!meetsPassThreshold()"
+        ></div>
+        <span class="academic-modal__threshold" [style.left.%]="passThreshold">Meta {{ passThreshold }}%</span>
+      </div>
+      <p class="academic-modal__muted text-xs mt-2" *ngIf="!meetsPassThreshold()">
+        Te faltan {{ pointsToPass() }} puntos porcentuales para alcanzar el umbral de aprobación.
+      </p>
+    </div>
+
+    <div class="space-y-3 mb-5">
+      <div
+        *ngFor="let dimension of dimensions()"
+        class="academic-modal__dimension rounded-xl p-4"
+        [class.academic-modal__dimension--focus]="weakestDimension()?.key === dimension.key"
+      >
+        <div class="flex items-center justify-between gap-3 mb-2">
+          <p class="academic-modal__label text-sm font-semibold">Dimensión {{ dimension.label }}</p>
+          <p class="academic-modal__score text-lg font-manrope font-bold">{{ dimension.score }}%</p>
+        </div>
+        <div class="academic-modal__bar-track">
+          <div
+            class="academic-modal__bar-fill"
+            [style.width.%]="dimension.score"
+            [class.academic-modal__bar-fill--cyan]="dimension.tone === 'cyan'"
+            [class.academic-modal__bar-fill--blue]="dimension.tone === 'blue'"
+            [class.academic-modal__bar-fill--coral]="dimension.tone === 'coral'"
+          ></div>
+          <span class="academic-modal__bar-threshold" [style.left.%]="passThreshold"></span>
+        </div>
+        <p class="academic-modal__muted text-xs mt-2">{{ dimension.tip }}</p>
+      </div>
+    </div>
+
+    <div class="academic-modal__card rounded-xl p-4 mb-5 space-y-3" *ngIf="weakestAttempt() as weakestAttempt">
+      <p class="academic-modal__label text-sm font-semibold">Intento con mayor oportunidad de mejora</p>
+      <div class="flex flex-wrap items-center justify-between gap-3 text-sm">
+        <div>
+          <p class="font-medium">{{ weakestAttempt.caseTitle }}</p>
+          <p class="academic-modal__muted text-xs mt-1">
+            {{ isAdmin ? weakestAttempt.studentName + ' · ' : '' }}Intento {{ weakestAttempt.attemptNumber }} · {{ weakestAttempt.date }}
+          </p>
+        </div>
+        <span class="academic-modal__score--warn text-lg font-manrope font-bold">{{ weakestAttempt.totalScore }}%</span>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button
+          type="button"
+          (click)="focusWeakestAttempt()"
+          class="academic-modal__btn px-4 py-2 rounded-lg text-xs font-medium"
+        >
+          Ver detalle del intento
+        </button>
+        <button
+          *ngIf="!isAdmin"
+          type="button"
+          (click)="practiceWeakestCase()"
+          class="academic-modal__btn academic-modal__btn--primary px-4 py-2 rounded-lg text-xs font-medium"
+        >
+          Practicar este caso
+        </button>
+      </div>
+    </div>
+
+    <div class="academic-modal__card rounded-xl p-4 mb-5 space-y-3">
+      <div class="flex items-center justify-between gap-3">
+        <div>
+          <p class="academic-modal__label text-sm font-semibold">Promedio general</p>
+          <p class="academic-modal__muted text-xs">Promedio de las tres dimensiones evaluadas.</p>
+        </div>
+        <p class="text-3xl font-manrope" [class.academic-modal__score--pass]="meetsPassThreshold()" [class.academic-modal__score--warn]="!meetsPassThreshold()">
+          {{ overallAverage() }}%
+        </p>
+      </div>
+      <div class="flex items-center justify-between gap-3 text-sm">
+        <span class="academic-modal__muted">Umbral de aprobación</span>
+        <span class="academic-modal__value font-semibold">{{ passThreshold }}%</span>
+      </div>
+      <div class="flex items-center justify-between gap-3 text-sm">
+        <span class="academic-modal__muted">Tasa de aprobación</span>
+        <span class="academic-modal__score font-semibold">{{ reports.approvalRate }}%</span>
+      </div>
+      <div class="flex items-center justify-between gap-3 text-sm">
+        <span class="academic-modal__muted">Casos intentados</span>
+        <span class="academic-modal__value font-semibold">{{ reports.casesAttempted }}</span>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap justify-end gap-3">
+      <button
+        type="button"
+        (click)="closeAcademicFocus()"
+        class="academic-modal__btn px-5 py-2.5 rounded-lg text-sm font-medium"
+      >
+        Cerrar
+      </button>
+      <button
+        type="button"
+        (click)="router.navigate(['/dashboard']); closeAcademicFocus()"
+        class="academic-modal__btn px-5 py-2.5 rounded-lg text-sm font-medium"
+      >
+        Ir a casos
+      </button>
+      <button
+        type="button"
+        (click)="exportAcademicPdf()"
+        class="academic-modal__btn academic-modal__btn--primary px-6 py-2.5 rounded-lg text-sm font-medium"
+      >
+        <span class="material-symbols-outlined text-base align-middle mr-1">picture_as_pdf</span>
+        Exportar PDF
+      </button>
+    </div>
+  </div>
+</div>

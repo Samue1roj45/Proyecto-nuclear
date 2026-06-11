@@ -179,6 +179,7 @@ export interface AttemptSummary {
   id: number;
   studentName: string;
   studentEmail: string;
+  caseId?: number;
   caseTitle: string;
   attemptNumber: number;
   date: string;

@@ -9,6 +9,7 @@ public class AttemptSummaryDto {
     private Long id;
     private String studentName;
     private String studentEmail;
+    private Long caseId;
     private String caseTitle;
     private int attemptNumber;
     private String date;

@@ -199,6 +199,7 @@ public class ReportsService {
                 .id(a.getId())
                 .studentName(a.getUser().getFullName())
                 .studentEmail(a.getUser().getEmail())
+                .caseId(a.getCaseStudy().getId())
                 .caseTitle(a.getCaseStudy().getTitle())
                 .attemptNumber(a.getAttemptNumber())
                 .date(date)
