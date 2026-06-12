@@ -1,0 +1,112 @@
+<div class="info-page relative min-h-screen overflow-x-hidden">
+  <div class="info-bg absolute inset-0 z-0 bg-[#0b3a42]">
+    <video class="absolute inset-0 w-full h-full object-cover" autoplay muted loop playsinline>
+      <source src="login-bg.mp4" type="video/mp4" />
+    </video>
+    <div class="absolute inset-0 bg-black/10"></div>
+  </div>
+
+  <!-- Vista proyector / PC: solo QR -->
+  <div *ngIf="showQrOnly" class="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-10">
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center w-14 h-14 rounded-lg info-brand-icon mb-4">
+        <span class="material-symbols-outlined text-3xl">psychology</span>
+      </div>
+      <p class="info-subtitle text-xs uppercase font-semibold tracking-widest mb-2">Simulador Academico</p>
+      <h1 class="text-3xl md:text-5xl font-manrope font-bold info-title">Mision Psicosocial</h1>
+      <p class="info-text mt-4 text-sm md:text-base">Escanea el codigo con tu celular para leer la guia</p>
+    </div>
+
+    <div class="neon-panel rounded-2xl p-8 md:p-10 text-center qr-only-panel">
+      <div class="qr-frame qr-frame--large mx-auto rounded-xl p-5 inline-flex items-center justify-center min-h-[352px]">
+        <canvas *ngIf="!loadingQr" #qrCanvas aria-label="Codigo QR guia Mision Psicosocial"></canvas>
+        <p *ngIf="loadingQr" class="info-muted text-sm">Generando QR...</p>
+      </div>
+
+      <p *ngIf="usesLanUrl" class="info-hint text-xs mt-6 rounded-lg p-3 max-w-sm mx-auto">
+        <span class="material-symbols-outlined text-sm align-middle mr-1">wifi</span>
+        Misma red WiFi en PC y celular
+      </p>
+
+      <button *ngIf="qrReady" type="button" (click)="downloadQr()"
+              class="info-outline-btn mt-6 px-6 py-2 rounded-full text-xs font-semibold">
+        Descargar QR
+      </button>
+    </div>
+  </div>
+
+  <!-- Vista celular / tras escanear: solo guia -->
+  <div *ngIf="showGuideOnly" class="relative z-10 max-w-4xl mx-auto px-4 py-8 md:py-12">
+    <header class="text-center mb-8">
+      <div class="inline-flex items-center justify-center w-12 h-12 rounded-lg info-brand-icon mb-3">
+        <span class="material-symbols-outlined text-2xl">psychology</span>
+      </div>
+      <p class="info-subtitle text-xs uppercase font-semibold tracking-widest mb-1">Simulador Academico</p>
+      <h1 class="text-2xl md:text-3xl font-manrope font-bold info-title">Mision Psicosocial</h1>
+      <p class="info-text mt-3 max-w-xl mx-auto text-sm md:text-base">
+        Guia de uso de la plataforma para estudiantes y docentes.
+      </p>
+    </header>
+
+    <main class="space-y-6">
+      <section class="neon-panel rounded-xl p-6">
+        <h2 class="font-manrope font-semibold text-xl info-title mb-4">Que es esta plataforma?</h2>
+        <div class="grid sm:grid-cols-2 gap-3">
+          <div *ngFor="let f of features" class="info-chip rounded-lg p-3 flex items-start gap-3">
+            <span class="material-symbols-outlined text-primary shrink-0">{{ f.icon }}</span>
+            <span class="info-text text-sm">{{ f.label }}</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="neon-panel rounded-xl p-6">
+        <div class="flex items-center gap-2 mb-5">
+          <span class="material-symbols-outlined text-primary">school</span>
+          <h2 class="font-manrope font-semibold text-xl info-title">Flujo del estudiante</h2>
+        </div>
+        <ol class="space-y-4">
+          <li *ngFor="let step of studentSteps; let i = index" class="info-step flex gap-4">
+            <div class="info-step-num shrink-0">{{ i + 1 }}</div>
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="material-symbols-outlined text-sm text-primary">{{ step.icon }}</span>
+                <h3 class="font-manrope font-semibold info-title text-sm md:text-base">{{ step.title }}</h3>
+              </div>
+              <p class="info-text text-sm leading-relaxed">{{ step.description }}</p>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <section class="neon-panel rounded-xl p-6">
+        <div class="flex items-center gap-2 mb-5">
+          <span class="material-symbols-outlined text-primary">supervisor_account</span>
+          <h2 class="font-manrope font-semibold text-xl info-title">Flujo del docente</h2>
+        </div>
+        <ol class="grid sm:grid-cols-2 gap-4">
+          <li *ngFor="let step of teacherSteps; let i = index" class="info-chip rounded-lg p-4">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="info-step-num info-step-num--sm">{{ i + 1 }}</span>
+              <span class="material-symbols-outlined text-primary text-sm">{{ step.icon }}</span>
+              <h3 class="font-manrope font-semibold info-title text-sm">{{ step.title }}</h3>
+            </div>
+            <p class="info-text text-sm leading-relaxed">{{ step.description }}</p>
+          </li>
+        </ol>
+      </section>
+
+      <section class="neon-panel-hero rounded-xl p-6 text-center">
+        <span class="material-symbols-outlined text-4xl text-primary mb-2">menu_book</span>
+        <h2 class="font-manrope font-semibold text-lg info-title mb-2">Guia informativa</h2>
+        <p class="info-text text-sm max-w-lg mx-auto">
+          Esta pagina explica el funcionamiento del simulador. Para usar la aplicacion en clase,
+          el docente compartira el acceso al sistema por los canales academicos habituales.
+        </p>
+      </section>
+    </main>
+
+    <footer class="text-center mt-10 pb-4">
+      <p class="info-muted text-xs">Mision Psicosocial - Simulador Academico de Psicologia Social</p>
+    </footer>
+  </div>
+</div>

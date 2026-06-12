@@ -1,0 +1,123 @@
+.info-page {
+  color: #a9edff;
+}
+
+.info-title {
+  color: #5eeaff !important;
+  text-shadow:
+    0 0 12px rgba(94, 234, 255, 0.65),
+    0 0 24px rgba(0, 212, 240, 0.35),
+    0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+.info-text {
+  color: #a9edff !important;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.7);
+}
+
+.info-muted {
+  color: rgba(169, 237, 255, 0.75) !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+.info-subtitle {
+  color: #00d4f0 !important;
+  text-shadow: 0 0 10px rgba(0, 212, 240, 0.55);
+}
+
+.info-brand-icon {
+  background: rgba(0, 100, 116, 0.35);
+  border: 1px solid rgba(94, 234, 255, 0.75);
+  box-shadow:
+    0 0 12px rgba(94, 234, 255, 0.6),
+    0 0 24px rgba(0, 212, 240, 0.35),
+    inset 0 0 12px rgba(94, 234, 255, 0.15);
+
+  .material-symbols-outlined {
+    color: #a9edff;
+    filter: drop-shadow(0 0 10px rgba(169, 237, 255, 0.8));
+  }
+}
+
+.qr-frame {
+  background: #f8fafb;
+  border: 2px solid rgba(94, 234, 255, 0.85);
+  box-shadow:
+    0 0 16px rgba(94, 234, 255, 0.55),
+    0 0 32px rgba(0, 212, 240, 0.3);
+}
+
+.qr-frame--large canvas {
+  display: block;
+}
+
+.qr-only-panel {
+  max-width: 28rem;
+  width: 100%;
+}
+
+.info-chip {
+  border: 1px solid rgba(94, 234, 255, 0.35);
+  background: rgba(0, 100, 116, 0.12);
+  transition: background 0.25s ease, border-color 0.25s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(94, 234, 255, 0.6);
+  }
+}
+
+.info-step-num {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 700;
+  font-family: Manrope, sans-serif;
+  color: #006474;
+  background: #f8fafb;
+  border: 1px solid rgba(94, 234, 255, 0.8);
+  box-shadow: 0 0 10px rgba(94, 234, 255, 0.45);
+}
+
+.info-step-num--sm {
+  width: 1.5rem;
+  height: 1.5rem;
+  font-size: 0.75rem;
+}
+
+.info-outline-btn {
+  border: 1px solid rgba(94, 234, 255, 0.75);
+  color: #5eeaff;
+  background: transparent;
+  transition: all 0.25s ease;
+
+  &:hover {
+    background: rgba(94, 234, 255, 0.12);
+    box-shadow: 0 0 14px rgba(94, 234, 255, 0.45);
+  }
+}
+
+.info-hint {
+  border: 1px solid rgba(94, 234, 255, 0.45);
+  background: rgba(0, 100, 116, 0.2);
+  color: #a9edff;
+}
+
+@media print {
+  .info-bg video {
+    display: none;
+  }
+
+  .info-bg {
+    background: #0b3a42 !important;
+  }
+
+  .info-outline-btn,
+  a[routerLink] {
+    display: none;
+  }
+}

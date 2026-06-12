@@ -1,0 +1,13 @@
+{
+  "name": "proyecto-nuclear",
+  "private": true,
+  "description": "Misión Psicosocial — scripts de desarrollo",
+  "scripts": {
+    "dev": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/dev.ps1 start",
+    "stop": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/dev.ps1 stop",
+    "restart": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/dev.ps1 restart",
+    "dev:status": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/dev.ps1 status",
+    "build": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/dev.ps1 build",
+    "dev:build": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/dev.ps1 start -ForceBuild"
+  }
+}

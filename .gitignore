@@ -1,6 +1,9 @@
 # Entorno
 .env
 .env.local
+.dev-pids.json
+.dev/
+frontend/public/network-url.json
 
 # Backend (Java / Maven)
 backend/target/

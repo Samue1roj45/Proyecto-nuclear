@@ -4,6 +4,11 @@ import { adminGuard, authGuard, loginGuard } from './guards/auth.guard';
 export const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   {
+    path: 'info',
+    loadComponent: () =>
+      import('./pages/platform-info/platform-info.component').then((m) => m.PlatformInfoComponent),
+  },
+  {
     path: 'login',
     loadComponent: () => import('./pages/login/login.component').then((m) => m.LoginComponent),
     canActivate: [loginGuard],
